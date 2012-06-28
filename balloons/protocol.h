@@ -3,9 +3,10 @@
 #include <unistd.h>
 #include "damn.h"
 
-#define writestr(a,b) write(a, (b), strlen(b))
-#define finish(a) write(a, "\n", 2)
+#define writestr(a,b) send(a, (b), strlen(b), 0)
+#define finish(a) send(a, "\n", 2, 0)
 
-void handshake(damn*);
-void login(damn*, char*, char*);
-void join(damn*, char*);
+void phandshake(damn*);
+void plogin(damn*, char*, char*);
+void pjoin(damn*, char*);
+void psendmsg(damn*, char*, char*);

@@ -100,11 +100,11 @@ char *token_get_code(void) {
     
     socklen_t client_len = sizeof(client_addr);
     int clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
-    read(clientfd, &buffer, sizeof(buffer) - 1);
+    recv(clientfd, &buffer, sizeof(buffer) - 1, 0);
     sscanf(buffer, "GET /?code=%s", code);
     
     char *resp = response();
-    write(clientfd, resp, strlen(resp));
+    send(clientfd, resp, strlen(resp), 0);
     close(clientfd);
     close(sockfd);
     

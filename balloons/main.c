@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "api.h"
 #include "damn.h"
 #include "packet.h"
 #include "token.h"
@@ -33,13 +34,14 @@ int main (int argc, const char *argv[])
     ev_hook(e, "pkt.dAmnServer", &handler_dAmnServer);
     ev_hook(e, "pkt.login", &handler_login);
     ev_hook(e, "pkt.property.members", &handler_property_members);
-    ev_hook(e, "pkt.recv.msg", &handler_recv_msg);
+    
+    hook_msg(&handler_recv_msg);
     
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
     
     damn *d = damn_make(true);
-    handshake(d);
+    phandshake(d);
     
     for (;;) {
         pkt = damn_read(d);

@@ -1,13 +1,13 @@
 #include "protocol.h"
 
-void handshake(damn *d) {
+void phandshake(damn *d) {
     int sock = d->_sockd;
     writestr(sock, "dAmnClient 0.3\nagent=balloons ");
     writestr(sock, BALLOONS_VERSION);
     finish(sock);
 }
 
-void login(damn *d, char *user, char *token) {
+void plogin(damn *d, char *user, char *token) {
     int sock = d->_sockd;
     writestr(sock, "login ");
     writestr(sock, user);
@@ -16,9 +16,18 @@ void login(damn *d, char *user, char *token) {
     finish(sock);
 }
 
-void join(damn *d, char *room) {
+void pjoin(damn *d, char *room) {
     int sock = d->_sockd;
     writestr(sock, "join chat:");
     writestr(sock, room);
     finish(sock);
+}
+
+void psendmsg(damn *d, char *room, char *msg) {
+    int sock = d->_sockd;
+    writestr(sock, "send chat:");
+    writestr(sock, room);
+    writestr(sock, "\n\nmsg main\n\n");
+    writestr(sock, msg);
+    send(sock, "", 1, 0);
 }
