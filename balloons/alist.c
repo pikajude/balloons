@@ -18,8 +18,7 @@ static void al_valueset(arglist *a, char *val) {
 }
 
 arglist *al_make_pair(char *key, char *value) {
-    arglist *a = malloc(sizeof(arglist));
-    zero(a, sizeof(arglist));
+    arglist *a = calloc(1, sizeof(arglist));
     al_keyset(a, key);
     al_valueset(a, value);
     return a;

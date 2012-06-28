@@ -2,10 +2,9 @@
 #include "events.h"
 
 damn *damn_make(bool autoconnect) {
-    damn *d = malloc(sizeof(damn));
+    damn *d = calloc(1, sizeof(damn));
     if (d == NULL)
         return NULL;
-    zero(d, sizeof(damn));
     d->reconnect_wait = 5000; // ms
     d->autoreconnect = false;
     d->_sockd = 0;
@@ -42,7 +41,7 @@ ssize_t damn_write(damn *d, char *pkt) {
 char *damn_read(damn *d) {
     if (!d->_connected)
         return NULL;
-    char *res = malloc(8024);
+    char *res = calloc(1, 8024);
     char buf[1];
     int loc = 0;
     for(;;) {

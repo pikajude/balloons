@@ -15,3 +15,10 @@ void login(damn *d, char *user, char *token) {
     writestr(sock, token);
     finish(sock);
 }
+
+void join(damn *d, char *room) {
+    int sock = d->_sockd;
+    writestr(sock, "join chat:");
+    writestr(sock, room);
+    finish(sock);
+}

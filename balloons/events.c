@@ -1,8 +1,7 @@
 #include "events.h"
 
 static events *ev_make(void) {
-    events *e = malloc(sizeof(events));
-    zero(e, sizeof(events));
+    events *e = calloc(1, sizeof(events));
     return e;
 }
 

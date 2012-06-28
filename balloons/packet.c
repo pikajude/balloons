@@ -61,8 +61,7 @@ static size_t _parse_argpair(packet *p, const char *str) {
 }
 
 packet *packet_parse(const char *str, bool skip_newline) {
-    packet *p = malloc(sizeof(packet));
-    zero(p, sizeof(packet));
+    packet *p = calloc(1, sizeof(packet));
     str += _parse_cmd(p, str);
     str += _parse_subcmd(p, str);
     

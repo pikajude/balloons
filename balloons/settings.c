@@ -9,12 +9,9 @@ static char *settings_filename(void) {
 
 static settings *settings_load(void) {
     settings *s = NULL;
-    char key[KEYLEN], value[VALLEN];
+    char key[KEYLEN] = { 0 }, value[VALLEN] = { 0 };
     FILE *set = fopen(settings_filename(), "a+");
     fseek(set, 0, SEEK_SET);
-    
-    zero(key, KEYLEN);
-    zero(value, VALLEN);
     
     while (fscanf(set, ARGFMT, key, value) == 2) {
         if (s == NULL)

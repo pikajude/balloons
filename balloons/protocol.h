@@ -8,3 +8,4 @@
 
 void handshake(damn*);
 void login(damn*, char*, char*);
+void join(damn*, char*);

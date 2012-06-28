@@ -2,8 +2,7 @@
 
 static char *response(void) {
     char date[30];
-    char *resp = malloc(4000);
-    zero(resp, 4000);
+    char *resp = calloc(1, 4000);
     time_t rawtime;
     time(&rawtime);
     strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", localtime(&rawtime));
@@ -14,8 +13,9 @@ static char *response(void) {
 }
 
 static char *extractJSON(char *json, char *key) {
-    char *value = malloc(512), formatstring[strlen(key) + 16];
-    zero(formatstring, sizeof(formatstring));
+    size_t keylen = strlen(key);
+    char *value = malloc(512), formatstring[keylen + 128];
+    zero(formatstring, keylen + 128);
     size_t idx = 0, jsonlen = strlen(json);
     sprintf(formatstring, "\"%s\": \"%%[^\"]\"", key);
     while (sscanf(idx+++json, formatstring, value) == 0) { if(idx > jsonlen) return NULL; }

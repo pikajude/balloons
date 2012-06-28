@@ -4,23 +4,22 @@
 #include "token.h"
 #include "protocol.h"
 #include "events.h"
+#include "handlers.h"
 
 static void handhandler(damn *d, packet *p) {
     printf("connected! reconnect wait: %dms\n", d->reconnect_wait);
 }
 
-static void handler(damn *d, packet *p) {
-    printf("Handshake succeeded.\n");
-    char *tok = token_get_access_all();
-    char *dtk = token_get_damn(tok);
-    login(d, setting_get("_username"), dtk);
-}
-
-static void loghandler(damn *d, packet *p) {
-    if (strcmp(parg_get(p, "e"), "ok") == 0) {
-        printf("Logged in as %s.\n", p->subcommand);
-    } else {
-        printf("Failed to log in, how the fuck did that happen?\n");
+static void getevtname(char *name, packet *p) {
+    strcat(name, p->command);
+    if (strcmp(p->command, "property") == 0) {
+        strcat(name, ".");
+        strcat(name, parg_get(p, "p"));
+    } else if (strcmp(p->command, "recv") == 0) {
+        size_t loc = 9, strloc = 0;
+        strcat(name, ".");
+        while (p->body[strloc] != ' ')
+            name[loc++] = p->body[strloc++];
     }
 }
 
@@ -28,11 +27,16 @@ int main (int argc, const char *argv[])
 {
     char *pkt;
     packet *p;
-    char evtid[15] = "pkt.";
+    char evtid[25] = "pkt.";
     
     events *e = ev_get_global();
-    ev_hook(e, "pkt.dAmnServer", &handler);
-    ev_hook(e, "pkt.login", &loghandler);
+    ev_hook(e, "pkt.dAmnServer", &handler_dAmnServer);
+    ev_hook(e, "pkt.login", &handler_login);
+    ev_hook(e, "pkt.property.members", &handler_property_members);
+    ev_hook(e, "pkt.recv.msg", &handler_recv_msg);
+    
+    char *tok = token_get_access_all();
+    set_damntoken(token_get_damn(tok));
     
     damn *d = damn_make(true);
     handshake(d);
@@ -41,12 +45,12 @@ int main (int argc, const char *argv[])
         pkt = damn_read(d);
         p = parse(pkt);
         
-        strcat(evtid, p->command);
+        getevtname(evtid, p);
         ev_trigger(e, evtid, d, p);
         
         packet_free(p);
         free(pkt);
-        zero(evtid + 4, 8);
+        zero(evtid + 4, 18);
     }
 
     return 0;
