@@ -9,7 +9,7 @@ static char *settings_filename(void) {
     return fn;
 }
 
-static void settings_load(bool reload) {
+static void settings_load(int reload) {
     if (current_settings != NULL && !reload) return;
     
     if (reload) {
@@ -56,7 +56,7 @@ char *setting_get(char *key) {
     return current_settings == NULL ? NULL : al_get(current_settings, key);
 }
 
-bool setting_exists(char *key) {
+int setting_exists(char *key) {
     if (current_settings == NULL) settings_load(true);
     return current_settings == NULL ? false : al_get(current_settings, key) != NULL;
 }

@@ -1,18 +1,12 @@
 #include "events.h"
 
-static events *ev_make(void) {
-    events *e = calloc(1, sizeof(events));
-    return e;
-}
-
 static void ev_keyset(events *e, char *k) {
-    e->name = malloc(strlen(k) + 1);
+    e->name = calloc(1, strlen(k) + 1);
     strcpy(e->name, k);
 }
 
-events *ev_get_global() {
-    static events *e = NULL;
-    if (e == NULL) e = ev_make();
+events *ev_make(void) {
+    events *e = calloc(1, sizeof(events));
     return e;
 }
 
@@ -33,7 +27,9 @@ void ev_hook(events *e, char *evname, damn_callback d) {
 
 void ev_trigger(events *e, char *evname, damn *d, packet *p) {
     do {
-        if (strcmp(e->name, evname) == 0)
+        if (strcmp(e->name, evname) == 0) {
+            printf("executing %s\n", e->name);
             e->d(d, p);
+        }
     } while ((e = e->next) != NULL);
 }

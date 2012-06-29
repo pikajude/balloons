@@ -1,8 +1,15 @@
 #pragma once
 
+#include <dlfcn.h>
 #include "events.h"
 #include "damn.h"
 #include "packet.h"
+#include "settings.h"
 
-void hook_msg(void(*)(damn*, packet*));
-void hook_act(void(*)(damn*, packet*));
+typedef void (*initfun)(events*);
+
+void hook_msg(events*, char*, void(*)(damn*, packet*));
+
+void load_libs(events*);
+
+void exec_commands(events*, damn*, packet*);

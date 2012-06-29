@@ -14,6 +14,6 @@ struct _events {
 
 typedef struct _events events;
 
-events *ev_get_global(void);
+events *ev_make(void);
 void ev_hook(events*, char*, damn_callback);
 void ev_trigger(events*, char*, damn*, packet*);

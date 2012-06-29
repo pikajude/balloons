@@ -16,4 +16,4 @@ typedef arglist settings;
 
 void setting_store(char*, char*);
 char *setting_get(char*);
-bool setting_exists(char*);
+int setting_exists(char*);

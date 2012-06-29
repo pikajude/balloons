@@ -18,15 +18,15 @@
 
 struct _damn {
     int _sockd;
-    bool _connected;
-    bool autoreconnect;
+    int _connected;
+    int autoreconnect;
     int reconnect_wait;
 };
 
 typedef struct _damn damn;
 
-damn *damn_make(bool);
-bool damn_connect(damn*);
+damn *damn_make(int);
+int damn_connect(damn*);
 void damn_disconnect(damn*);
 char* damn_read(damn*);
 ssize_t damn_write(damn*, char*);

@@ -15,6 +15,6 @@
 #define CLIENT_SECRET "85d3430961516f158846b776462db13f"
 
 char *token_get_code(void);
-char *token_get_access(char*, bool);
+char *token_get_access(char*, int);
 char *token_get_access_all(void);
 char *token_get_damn(char*);

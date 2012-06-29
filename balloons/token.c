@@ -112,7 +112,7 @@ char *token_get_code(void) {
     return code;
 }
 
-char *token_get_access(char *code, bool refresh) {
+char *token_get_access(char *code, int refresh) {
     arglist *params = al_make_pair("grant_type", refresh ? "refresh_token" : "authorization_code");
     al_set(params, "client_id", CLIENT_ID);
     al_set(params, "client_secret", CLIENT_SECRET);
@@ -136,7 +136,7 @@ char *token_get_access(char *code, bool refresh) {
 }
 
 char *token_get_access_all(void) {
-    bool has_rtoken = setting_exists("_oauthrtoken");
+    int has_rtoken = setting_exists("_oauthrtoken");
     return token_get_access(has_rtoken ?
                                 setting_get("_oauthrtoken") :
                                 setting_exists("_oauthcode") ?

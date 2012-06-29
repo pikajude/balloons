@@ -23,12 +23,3 @@ HANDLER(login) {
 HANDLER(property_members) {
     printf("Got members for %s\n", p->subcommand);
 }
-
-HANDLER(recv_msg) {
-    packet *sub = subpacket(p);
-    char *us = setting_get("_username");
-    char response[50];
-    sprintf(response, "Hi, %s!", parg_get(sub, "from"));
-    if (strncmp(us, sub->body, strlen(us)) == 0)
-        psendmsg(d, p->subcommand + 5, response);
-}

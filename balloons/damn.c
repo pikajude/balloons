@@ -1,7 +1,7 @@
 #include "damn.h"
 #include "events.h"
 
-damn *damn_make(bool autoconnect) {
+damn *damn_make(int autoconnect) {
     damn *d = calloc(1, sizeof(damn));
     if (d == NULL)
         return NULL;
@@ -13,7 +13,7 @@ damn *damn_make(bool autoconnect) {
     return d;
 }
 
-bool damn_connect(damn *d) {
+int damn_connect(damn *d) {
     struct addrinfo addr, *res;
     zero(&addr, sizeof(addr));
     addr.ai_family = AF_INET;
@@ -23,13 +23,11 @@ bool damn_connect(damn *d) {
     d->_sockd = sock;
     if(connect(sock, res->ai_addr, res->ai_addrlen) == 0) {
         d->_connected = true;
-        ev_trigger(ev_get_global(), "damn.connect", d, NULL);
         return true;
     } else return false;
 }
 
 void damn_disconnect(damn *d) {
-    ev_trigger(ev_get_global(), "damn.disconnect", d, NULL);
     close(d->_sockd);
     d->_connected = false;
 }

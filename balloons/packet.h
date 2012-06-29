@@ -15,7 +15,7 @@ struct _packet {
 
 typedef struct _packet packet;
 
-packet *packet_parse(const char*, bool);
+packet *packet_parse(const char*, int);
 void packet_free(packet*);
 void packet_print(packet*);
 
