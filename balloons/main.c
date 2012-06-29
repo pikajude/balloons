@@ -30,9 +30,6 @@ int main (int argc, const char *argv[])
     packet *p;
     char evtid[25] = "pkt.";
     
-    system("echo $(pwd)");
-    exit(0);
-    
     events *e = ev_make();
     load_libs(e);
     ev_hook(e, "pkt.dAmnServer", &handler_dAmnServer);

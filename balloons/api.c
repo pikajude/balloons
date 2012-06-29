@@ -1,5 +1,12 @@
 #include "api.h"
 
+static const char *get_extension(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if (dot == NULL || dot == filename)
+        return "";
+    return dot + 1;
+}
+
 void hook_msg(events *e, char *command, void (*callback)(damn*, packet*)) {
     if (command == NULL) {
         ev_hook(e, "pkt.recv.msg", callback);
@@ -9,15 +16,46 @@ void hook_msg(events *e, char *command, void (*callback)(damn*, packet*)) {
         char com[strlen(command) + 4];
         zero(com, strlen(command) + 4);
         sprintf(com, "cmd.%s", command);
-        printf("%s\n", com);
         ev_hook(e, com, callback);
     }
 }
 
 void load_libs(events *e) {
-    void *lib = dlopen("/Users/jdt/Code/C/balloons/testlib.so", RTLD_LAZY);
-    initfun initializer = (initfun)dlsym(lib, "balloons_init");
-    initializer(e);
+    struct dirent *entry;
+    DIR *extdir;
+    void *lib;
+    initfun initializer;
+    const char *ext;
+    char path[512] = { 0 };
+    
+    char *exts = setting_get("_extdir");
+    if (exts == NULL)
+        return;
+    
+    extdir = opendir(exts);
+    if (extdir == NULL) {
+        perror("Couldn't open extension directory for reading. Are you sure it's readable and a directory?");
+        return;
+    }
+    
+    while ((entry = readdir(extdir))) {
+        ext = get_extension(entry->d_name);
+        if (strcmp(ext, "so") == 0) {
+            zero(path, 512);
+            snprintf(path, 511, "%s/%s", exts, entry->d_name);
+            lib = dlopen(path, RTLD_LAZY);
+            if (lib == NULL) {
+                printf("Unable to read %s, invalid library\n", path);
+                continue;
+            }
+            initializer = (initfun)dlsym(lib, "balloons_init");
+            if (initializer == NULL) {
+                printf("Symbol balloons_init not found in %s, might want to fix that.\n", path);
+                continue;
+            }
+            initializer(e);
+        }
+    }
 }
 
 void exec_commands(events *e, damn *d, packet *p) {
@@ -28,8 +66,7 @@ void exec_commands(events *e, damn *d, packet *p) {
         char *bod = sp->body + strlen(trigger);
         size_t len = -1;
         while(bod[++len] > 32);
-        char cmdname[len + 5];
-        zero(cmdname, len + 5);
+        char *cmdname = calloc(1, len + 5);
         snprintf(cmdname, len + 5, "cmd.%s", bod);
         ev_trigger(e, cmdname, d, p);
     }

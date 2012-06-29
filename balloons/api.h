@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dlfcn.h>
+#include <dirent.h>
 #include "events.h"
 #include "damn.h"
 #include "packet.h"

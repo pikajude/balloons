@@ -27,9 +27,7 @@ void ev_hook(events *e, char *evname, damn_callback d) {
 
 void ev_trigger(events *e, char *evname, damn *d, packet *p) {
     do {
-        if (strcmp(e->name, evname) == 0) {
-            printf("executing %s\n", e->name);
+        if (strcmp(e->name, evname) == 0)
             e->d(d, p);
-        }
     } while ((e = e->next) != NULL);
 }
