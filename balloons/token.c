@@ -91,10 +91,10 @@ char *token_get_code(void) {
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-        printf("Unable to create listening server (someone might already be using port 12345). Exiting.\n");
+        perror("Unable to create listening server (someone might already be using port 12345). Exiting.\n");
         exit(EXIT_FAILURE);
     }
-    listen(sockfd, 5);
+    listen(sockfd, 1);
     
     printf("In whatever browser you use, log into the bot's account.\nThen authorize balloons at http://goo.gl/S3cRb\n");
     

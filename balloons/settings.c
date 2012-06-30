@@ -19,6 +19,10 @@ static void settings_load(int reload) {
     
     char key[KEYLEN] = { 0 }, value[VALLEN] = { 0 };
     FILE *set = fopen(settings_filename(), "a+");
+    if (set == NULL) {
+        perror("Unable to open/create settings file. Does balloons have write access to ~?\n");
+        exit(EXIT_FAILURE);
+    }
     fseek(set, 0, SEEK_SET);
     
     while (fscanf(set, ARGFMT, key, value) == 2) {
