@@ -8,10 +8,6 @@
 #include "handlers.h"
 #include "setup.h"
 
-static void handhandler(damn *d, packet *p) {
-    printf("connected! reconnect wait: %dms\n", d->reconnect_wait);
-}
-
 static void getevtname(char *name, packet *p) {
     strcat(name, p->command);
     if (strcmp(p->command, "property") == 0) {

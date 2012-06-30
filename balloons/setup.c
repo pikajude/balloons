@@ -3,6 +3,6 @@
 void runsetup(void) {
     if (setting_get(BKEY_OAUTHCODE) != NULL)
         return;
-    puts("Hi!\n");
-    return;
+    puts("Hi!");
+    exit(0);
 }
