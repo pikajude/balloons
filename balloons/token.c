@@ -73,12 +73,12 @@ static void token_whoami(char *accesstoken) {
     al_free(params);
     char *uname = extractJSON(r, "username");
     free(r);
-    setting_store("_username", uname);
+    setting_store(BKEY_USERNAME, uname);
     free(uname);
 }
 
 char *token_get_code(void) {
-    char *curtok = setting_get("_oauthcode");
+    char *curtok = setting_get(BKEY_OAUTHCODE);
     if (curtok != NULL)
         return curtok;
     char buffer[300];
@@ -108,7 +108,7 @@ char *token_get_code(void) {
     close(clientfd);
     close(sockfd);
     
-    setting_store("_oauthcode", code);
+    setting_store(BKEY_OAUTHCODE, code);
     return code;
 }
 
@@ -124,7 +124,7 @@ char *token_get_access(char *code, int refresh) {
         free(r);
         return NULL;
     } else {
-        setting_store("_oauthrtoken", extractJSON(r, "refresh_token"));
+        setting_store(BKEY_OAUTHRTOKEN, extractJSON(r, "refresh_token"));
         char *tok = extractJSON(r, "access_token");
         free(r);
         
@@ -136,11 +136,11 @@ char *token_get_access(char *code, int refresh) {
 }
 
 char *token_get_access_all(void) {
-    int has_rtoken = setting_exists("_oauthrtoken");
+    int has_rtoken = setting_exists(BKEY_OAUTHRTOKEN);
     return token_get_access(has_rtoken ?
-                                setting_get("_oauthrtoken") :
-                                setting_exists("_oauthcode") ?
-                                    setting_get("_oauthcode") :
+                                setting_get(BKEY_OAUTHRTOKEN) :
+                                setting_exists(BKEY_OAUTHCODE) ?
+                                    setting_get(BKEY_OAUTHCODE) :
                                     token_get_code(),
                             has_rtoken);
 }

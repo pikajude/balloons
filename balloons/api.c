@@ -28,7 +28,7 @@ void load_libs(events *e) {
     const char *ext;
     char path[512] = { 0 };
     
-    char *exts = setting_get("_extdir");
+    char *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL)
         return;
     
@@ -48,9 +48,9 @@ void load_libs(events *e) {
                 printf("Unable to read %s, invalid library\n", path);
                 continue;
             }
-            initializer = (initfun)dlsym(lib, "balloons_init");
+            initializer = (initfun)dlsym(lib, BINIT_FUNCTION);
             if (initializer == NULL) {
-                printf("Symbol balloons_init not found in %s, might want to fix that.\n", path);
+                printf("Symbol %s not found in %s, might want to fix that.\n", BINIT_FUNCTION, path);
                 continue;
             }
             initializer(e);
@@ -61,7 +61,7 @@ void load_libs(events *e) {
 void exec_commands(events *e, damn *d, packet *p) {
     if (strcmp(p->command, "recv") != 0) return;
     packet *sp = subpacket(p);
-    char *trigger = setting_get("_trigger");
+    char *trigger = setting_get(BKEY_TRIGGER);
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
         char *bod = sp->body + strlen(trigger);
         size_t len = -1;

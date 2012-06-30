@@ -8,7 +8,7 @@ void set_damntoken(char *d) {
 
 HANDLER(dAmnServer) {
     printf("Handshake succeeded.\n");
-    plogin(d, setting_get("_username"), dtk);
+    plogin(d, setting_get(BKEY_USERNAME), dtk);
 }
 
 HANDLER(login) {

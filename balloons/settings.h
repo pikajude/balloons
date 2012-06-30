@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wordexp.h>
+#include <assert.h>
 #include "alist.h"
 #include "defs.h"
-#include <assert.h>
 
 #define KEYLEN 65
 #define VALLEN 513

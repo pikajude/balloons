@@ -6,6 +6,7 @@
 #include "protocol.h"
 #include "events.h"
 #include "handlers.h"
+#include "setup.h"
 
 static void handhandler(damn *d, packet *p) {
     printf("connected! reconnect wait: %dms\n", d->reconnect_wait);
@@ -26,6 +27,8 @@ static void getevtname(char *name, packet *p) {
 
 int main (int argc, const char *argv[])
 {
+    runsetup();
+    
     char *pkt;
     packet *p;
     char evtid[25] = "pkt.";
