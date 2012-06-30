@@ -64,10 +64,10 @@ void exec_commands(events *e, damn *d, packet *p) {
     char *trigger = setting_get(BKEY_TRIGGER);
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
         char *bod = sp->body + strlen(trigger);
-        size_t len = (unsigned long)-1;
-        while(bod[++len] > 32);
-        char *cmdname = calloc(1, len + 5);
-        snprintf(cmdname, len + 5, "cmd.%s", bod);
+        size_t len = 0;
+        while(bod[len++] > 32);
+        char *cmdname = calloc(1, len + 4);
+        snprintf(cmdname, len + 4, "cmd.%s", bod);
         ev_trigger(e, cmdname, d, p);
     }
 }
