@@ -6,7 +6,7 @@
 #define writestr(a,b) send(a, (b), strlen(b), 0)
 #define finish(a) send(a, "\n", 2, 0)
 
-void phandshake(damn*);
-void plogin(damn*, char*, char*);
-void pjoin(damn*, char*);
-void psendmsg(damn*, char*, char*);
+void dhandshake(damn*);
+void dlogin(damn*, char*, char*);
+void djoin(damn*, char*);
+void dsendmsg(damn*, char*, char*);

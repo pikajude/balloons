@@ -68,17 +68,18 @@ void exec_commands(events *e, damn *d, packet *p) {
     size_t len = 0;
     char *cmdname;
     char *uname = setting_get(BKEY_USERNAME);
+    size_t uname_len = strlen(uname);
     packet *sp = subpacket(p);
     char *trigger = setting_get(BKEY_TRIGGER);
     
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
         triggered = true;
         bod = sp->body + strlen(trigger);
-    } else if (strncmp(uname, sp->body, strlen(uname)) == 0 &&
-               sp->body[strlen(uname)] == ':' &&
-               sp->body[strlen(uname) + 1] == ' ') {
+    } else if (strncmp(uname, sp->body, uname_len) == 0 &&
+               sp->body[uname_len] == ':' &&
+               sp->body[uname_len + 1] == ' ') {
         triggered = true;
-        bod = sp->body + strlen(uname) + 2;
+        bod = sp->body + uname_len + 2;
     }
     
     if (triggered) {

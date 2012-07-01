@@ -39,7 +39,7 @@ int main (int argc, const char *argv[])
     set_damntoken(token_get_damn(tok));
     
     damn *d = damn_make(true);
-    phandshake(d);
+    dhandshake(d);
     
     for (;;) {
         pkt = damn_read(d);
