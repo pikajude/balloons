@@ -7,15 +7,16 @@ static const char *get_extension(const char *filename) {
     return dot + 1;
 }
 
-void hook_msg(events *e, char *command, void (*callback)(damn*, packet*)) {
-    if (command == NULL) {
-        ev_hook(e, "pkt.recv.msg", callback);
-        ev_hook(e, "pkt.recv.npmsg", callback);
-        ev_hook(e, "pkt.recv.action", callback);
+void hook_msg(events *e, bool trigger, char *command, void (*callback)(damn*, packet*)) {
+    if (!trigger) {
+        char com[strlen(command) + 11];
+        zero(com, strlen(command) + 11);
+        sprintf(com, "cmd.notrig.%s", command);
+        ev_hook(e, com, callback);
     } else {
-        char com[strlen(command) + 4];
-        zero(com, strlen(command) + 4);
-        sprintf(com, "cmd.%s", command);
+        char com[strlen(command) + 9];
+        zero(com, strlen(command) + 9);
+        sprintf(com, "cmd.trig.%s", command);
         ev_hook(e, com, callback);
     }
 }
@@ -34,7 +35,8 @@ void load_libs(events *e) {
     
     extdir = opendir(exts);
     if (extdir == NULL) {
-        perror("Couldn't open extension directory for reading. Are you sure it's readable and a directory?");
+        perror("Couldn't open extension directory");
+        exit(EXIT_FAILURE);
         return;
     }
     
@@ -60,14 +62,33 @@ void load_libs(events *e) {
 
 void exec_commands(events *e, damn *d, packet *p) {
     if (strcmp(p->command, "recv") != 0) return;
+    
+    bool triggered = 0;
+    char *bod;
+    size_t len = 0;
+    char *cmdname;
+    char *uname = setting_get(BKEY_USERNAME);
     packet *sp = subpacket(p);
     char *trigger = setting_get(BKEY_TRIGGER);
+    
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
-        char *bod = sp->body + strlen(trigger);
-        size_t len = 0;
-        while(bod[len++] > 32);
-        char *cmdname = calloc(1, len + 4);
-        snprintf(cmdname, len + 4, "cmd.%s", bod);
+        triggered = true;
+        bod = sp->body + strlen(trigger);
+    } else if (strncmp(uname, sp->body, strlen(uname)) == 0 &&
+               sp->body[strlen(uname)] == ':' &&
+               sp->body[strlen(uname) + 1] == ' ') {
+        triggered = true;
+        bod = sp->body + strlen(uname) + 2;
+    }
+    
+    if (triggered) {
+        while (bod[len++] > 32);
+        cmdname = calloc(1, len + 9);
+        snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
         ev_trigger(e, cmdname, d, p);
     }
+    
+    char *ident = calloc(1, strlen(sp->body) + 11);
+    sprintf(ident, "cmd.notrig.%s", sp->body);
+    ev_trigger(e, ident, d, p);
 }

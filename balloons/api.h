@@ -9,7 +9,7 @@
 
 typedef void (*initfun)(events*);
 
-void hook_msg(events*, char*, void(*)(damn*, packet*));
+void hook_msg(events*, bool, char*, void(*)(damn*, packet*));
 
 void load_libs(events*);
 

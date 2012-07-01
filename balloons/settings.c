@@ -2,14 +2,23 @@
 
 static settings *current_settings = NULL;
 
-static char *settings_filename(void) {
-    char *fn = malloc(200);
+char *settings_dirname(void) {
+    char *fn = calloc(1, 512);
     char *home = getenv("HOME");
-    snprintf(fn, 199, "%s/.balloons", home);
+    snprintf(fn, 511, "%s/.balloons", home);
     return fn;
 }
 
-static void settings_load(int reload) {
+char *settings_filename(void) {
+    char *dirname = settings_dirname();
+    char *fname = calloc(1, strlen(dirname) + 8);
+    strcat(fname, dirname);
+    strcat(fname, "/config");
+    free(dirname);
+    return fname;
+}
+
+void settings_load(int reload) {
     if (current_settings != NULL && !reload) return;
     
     if (reload) {
@@ -20,8 +29,16 @@ static void settings_load(int reload) {
     char key[KEYLEN] = { 0 }, value[VALLEN] = { 0 };
     FILE *set = fopen(settings_filename(), "a+");
     if (set == NULL) {
-        perror("Unable to open/create settings file. Does balloons have write access to ~?\n");
-        exit(EXIT_FAILURE);
+        if (errno == ENOENT) {
+            if(mkdir(settings_dirname(), 0777) < 0) {
+                perror("Unable to create settings directory");
+                exit(EXIT_FAILURE);
+            }
+            return settings_load(reload);
+        } else {
+            perror("Unable to open/create settings file");
+            exit(EXIT_FAILURE);
+        }
     }
     fseek(set, 0, SEEK_SET);
     

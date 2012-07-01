@@ -90,13 +90,16 @@ char *token_get_code(void) {
     addr.sin_addr.s_addr = INADDR_ANY;
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int opt = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-        perror("Unable to create listening server (someone might already be using port 12345). Exiting.\n");
+        perror("Failed to bind socket");
         exit(EXIT_FAILURE);
     }
-    listen(sockfd, 1);
+    listen(sockfd, 5);
     
-    printf("In whatever browser you use, log into the bot's account.\nThen authorize balloons at http://goo.gl/S3cRb\n");
+    printf("In whatever browser you use, log into the account for the bot you'll be using.\nThen authorize balloons at http://goo.gl/S3cRb\n");
     
     socklen_t client_len = sizeof(client_addr);
     int clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
