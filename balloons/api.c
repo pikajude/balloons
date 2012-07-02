@@ -69,7 +69,7 @@ void exec_commands(events *e, damn *d, packet *p) {
     char *cmdname;
     char *uname = setting_get(BKEY_USERNAME);
     size_t uname_len = strlen(uname);
-    packet *sp = subpacket(p);
+    packet *sp = pkt_subpacket(p);
     char *trigger = setting_get(BKEY_TRIGGER);
     
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
@@ -84,9 +84,11 @@ void exec_commands(events *e, damn *d, packet *p) {
     
     if (triggered) {
         while (bod[len++] > 32);
-        cmdname = calloc(1, len + 9);
-        snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-        ev_trigger(e, cmdname, d, p);
+        if (len > 1) {
+            cmdname = calloc(1, len + 9);
+            snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
+            ev_trigger(e, cmdname, d, p);
+        }
     }
     
     char *ident = calloc(1, strlen(sp->body) + 11);

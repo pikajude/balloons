@@ -12,7 +12,7 @@ static void getevtname(char *name, packet *p) {
     strcat(name, p->command);
     if (strcmp(p->command, "property") == 0) {
         strcat(name, ".");
-        strcat(name, parg_get(p, "p"));
+        strcat(name, pkt_getarg(p, "p"));
     } else if (strcmp(p->command, "recv") == 0) {
         size_t loc = 9, strloc = 0;
         strcat(name, ".");
@@ -43,13 +43,13 @@ int main (int argc, const char *argv[])
     
     for (;;) {
         pkt = damn_read(d);
-        p = parse(pkt);
+        p = pkt_parse(pkt);
         
         getevtname(evtid, p);
         ev_trigger(e, evtid, d, p);
         exec_commands(e, d, p);
         
-        packet_free(p);
+        pkt_free(p);
         free(pkt);
         zero(evtid + 4, 18);
     }

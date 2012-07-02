@@ -81,7 +81,7 @@ packet *packet_parse(const char *str, int skip_newline) {
     return p;
 }
 
-void packet_free(packet *p) {
+void pkt_free(packet *p) {
     if (p->args != NULL)
         al_free(p->args);
     free(p->command);
@@ -90,7 +90,7 @@ void packet_free(packet *p) {
     free(p);
 }
 
-void packet_print(packet *p) {
+void pkt_print(packet *p) {
     if (p->command != NULL)
         printf("command = %s\n", p->command);
     
