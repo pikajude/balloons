@@ -20,6 +20,11 @@ HANDLER(login) {
     }
 }
 
+HANDLER(ping) {
+    printf("pong!\n");
+    dpong(d);
+}
+
 HANDLER(property_members) {
-    printf("Got members for %s\n", p->subcommand);
+    printf("Got members for #%s\n", pkt_roomname(p));
 }

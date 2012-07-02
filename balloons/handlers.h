@@ -12,6 +12,7 @@ void set_damntoken(char*);
 
 HANDLER(dAmnServer);
 HANDLER(login);
+HANDLER(ping);
 HANDLER(property_members);
 HANDLER(property_topic);
 HANDLER(property_title);

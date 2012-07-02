@@ -7,6 +7,7 @@
 void dhandshake(damn*);
 void dlogin(damn*, char*, char*);
 void djoin(damn*, char*);
+void dpong(damn*);
 void dsendmsgtype(damn*, char*, char*, char*, ...);
 
 #define dsendmsg(d,room,msg,...) dsendmsgtype(d,"msg",room,msg,##__VA_ARGS__)

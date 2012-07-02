@@ -18,6 +18,12 @@ void djoin(damn *d, char *room) {
     finish(sock);
 }
 
+void dpong(damn *d) {
+    int sock = d->_sockd;
+    dprintf(sock, "pong");
+    finish(sock);
+}
+
 void dsendmsgtype(damn *d, char *type, char *room, char *msg, ...) {
     va_list args;
     int sock = d->_sockd;
