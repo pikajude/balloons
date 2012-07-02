@@ -63,13 +63,15 @@ void load_libs(events *e) {
 void exec_commands(events *e, damn *d, packet *p) {
     if (strcmp(p->command, "recv") != 0) return;
     
+    packet *sp = pkt_subpacket(p);
+    if (sp->body == NULL) return;
+    
     bool triggered = 0;
     char *bod;
     size_t len = 0;
     char *cmdname;
     char *uname = setting_get(BKEY_USERNAME);
     size_t uname_len = strlen(uname);
-    packet *sp = pkt_subpacket(p);
     char *trigger = setting_get(BKEY_TRIGGER);
     
     if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
