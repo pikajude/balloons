@@ -25,10 +25,6 @@ unsigned long hook_msg(events *e, bool trigger, char *command, damn_callback cal
     }
 }
 
-void unhook_msg(events *e, unsigned long id) {
-    ev_unhook(e, id);
-}
-
 void load_libs(events *e) {
     struct dirent *entry;
     DIR *extdir;
