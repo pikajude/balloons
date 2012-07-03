@@ -4,9 +4,12 @@
 #include "damn.h"
 #include "packet.h"
 
-typedef void (*damn_callback)(damn*, packet*);
+struct _events;
+
+typedef void (*damn_callback)(struct _events*, damn*, packet*);
 
 struct _events {
+    unsigned long id;
     char *name;
     damn_callback d;
     struct _events *next;
@@ -15,5 +18,6 @@ struct _events {
 typedef struct _events events;
 
 events *ev_make(void);
-void ev_hook(events*, char*, damn_callback);
+unsigned long ev_hook(events*, char*, damn_callback);
+void ev_unhook(events*, unsigned long);
 void ev_trigger(events*, char*, damn*, packet*);

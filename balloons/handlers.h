@@ -5,10 +5,11 @@
 #include "settings.h"
 #include "packet.h"
 #include "protocol.h"
+#include "events.h"
 
 void set_damntoken(char*);
 
-#define HANDLER(x) void handler_##x(damn *d, packet *p)
+#define HANDLER(x) void handler_##x(events *e, damn *d, packet *p)
 
 HANDLER(dAmnServer);
 HANDLER(login);

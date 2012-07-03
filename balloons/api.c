@@ -7,22 +7,26 @@ static const char *get_extension(const char *filename) {
     return dot + 1;
 }
 
-void hook_msg(events *e, bool trigger, char *command, void (*callback)(damn*, packet*)) {
+unsigned long hook_msg(events *e, bool trigger, char *command, damn_callback callback) {
     if (!trigger) {
         if (command == NULL) {
-            ev_hook(e, "cmd.notrig", callback);
+            return ev_hook(e, "cmd.notrig", callback);
         } else {
             char com[strlen(command) + 11];
             zero(com, strlen(command) + 11);
-            sprintf(com, "cmd.notrig.%s", command == NULL ? "" : command);
-            ev_hook(e, com, callback);
+            sprintf(com, "cmd.notrig.%s", command);
+            return ev_hook(e, com, callback);
         }
     } else {
         char com[strlen(command) + 9];
         zero(com, strlen(command) + 9);
         sprintf(com, "cmd.trig.%s", command);
-        ev_hook(e, com, callback);
+        return ev_hook(e, com, callback);
     }
+}
+
+void unhook_msg(events *e, unsigned long id) {
+    ev_unhook(e, id);
 }
 
 void load_libs(events *e) {

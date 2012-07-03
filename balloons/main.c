@@ -30,8 +30,8 @@ int main (int argc, const char *argv[])
     char evtid[25] = "pkt.";
     
     events *e = ev_make();
-    load_libs(e);
     ev_hook(e, "pkt.dAmnServer", &handler_dAmnServer);
+    load_libs(e);
     ev_hook(e, "pkt.login", &handler_login);
     ev_hook(e, "pkt.ping", &handler_ping);
     ev_hook(e, "pkt.property.members", &handler_property_members);

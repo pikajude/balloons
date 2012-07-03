@@ -67,9 +67,8 @@ static void setup_get_extpath(void) {
         return setup_get_extpath();
     else {
         if (mkdir(path, 0755) < 0) {
-            perror("Couldn't create the plugin directory.");
-            nuke_settings();
-            exit(EXIT_FAILURE);
+            perror("Couldn't create the plugin directory");
+            printf("Assuming that means it already exists. Continuing.\n");
         }
         setting_store(BKEY_EXTENSIONS_DIR, path);
     }
