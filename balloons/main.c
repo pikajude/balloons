@@ -39,7 +39,7 @@ int main (int argc, const char *argv[])
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
     
-    damn *d = damn_make(true);
+    damn *d = damn_make();
     dhandshake(d);
     
     for (;;) {

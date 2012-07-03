@@ -1,15 +1,14 @@
 #include "damn.h"
 #include "events.h"
 
-damn *damn_make(int autoconnect) {
+damn *damn_make(void) {
     damn *d = calloc(1, sizeof(damn));
     if (d == NULL)
         return NULL;
     d->reconnect_wait = 5000; // ms
     d->autoreconnect = false;
     d->_sockd = 0;
-    if (autoconnect)
-        damn_connect(d);
+    damn_connect(d);
     return d;
 }
 

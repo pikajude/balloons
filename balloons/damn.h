@@ -25,7 +25,7 @@ struct _damn {
 
 typedef struct _damn damn;
 
-damn *damn_make(int);
+damn *damn_make(void);
 int damn_connect(damn*);
 void damn_disconnect(damn*);
 char* damn_read(damn*);
