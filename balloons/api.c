@@ -95,12 +95,14 @@ void exec_commands(events *e, damn *d, packet *p) {
         if (len > 1) {
             cmdname = calloc(1, len + 9);
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger(e, cmdname, d, p);
+            ev_trigger(e, cmdname, (callback_data){e, d, p, bod + len});
         }
     }
     
+    callback_data cbdata = { e, d, p, sp->body };
+    
     char *ident = calloc(1, strlen(sp->body) + 11);
     sprintf(ident, "cmd.notrig.%s", sp->body);
-    ev_trigger(e, ident, d, p);
-    ev_trigger(e, "cmd.notrig", d, p);
+    ev_trigger(e, ident, cbdata);
+    ev_trigger(e, "cmd.notrig", cbdata);
 }

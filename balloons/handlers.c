@@ -8,13 +8,13 @@ void set_damntoken(char *d) {
 
 HANDLER(dAmnServer) {
     printf("Handshake succeeded.\n");
-    dlogin(d, setting_get(BKEY_USERNAME), dtk);
+    dlogin(cbdata.damn, setting_get(BKEY_USERNAME), dtk);
 }
 
 HANDLER(login) {
-    if (strcmp(pkt_getarg(p, "e"), "ok") == 0) {
-        printf("Logged in as %s.\n", p->subcommand);
-        djoin(d, "DevelopingDevelopers");
+    if (strcmp(pkt_getarg(cbdata.pkt, "e"), "ok") == 0) {
+        printf("Logged in as %s.\n", cbdata.pkt->subcommand);
+        djoin(cbdata.damn, "DevelopingDevelopers");
     } else {
         printf("Failed to log in, how the fuck did that happen?\n");
     }
@@ -22,9 +22,9 @@ HANDLER(login) {
 
 HANDLER(ping) {
     printf("pong!\n");
-    dpong(d);
+    dpong(cbdata.damn);
 }
 
 HANDLER(property_members) {
-    printf("Got members for #%s\n", pkt_roomname(p));
+    printf("Got members for #%s\n", pkt_roomname(cbdata.pkt));
 }

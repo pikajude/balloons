@@ -44,10 +44,10 @@ void ev_unhook(events *e, unsigned long id) {
     }
 }
 
-void ev_trigger(events *e, char *evname, damn *d, packet *p) {
+void ev_trigger(events *e, char *evname, callback_data cbdata) {
     events *cur = e;
     do {
         if (strcmp(cur->name, evname) == 0)
-            cur->d(e, d, p);
+            cur->d(cbdata);
     } while ((cur = cur->next) != NULL);
 }

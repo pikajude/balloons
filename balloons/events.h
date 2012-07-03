@@ -6,7 +6,16 @@
 
 struct _events;
 
-typedef void (*damn_callback)(struct _events*, damn*, packet*);
+struct _callback_data {
+    struct _events *evt;
+    damn *damn;
+    packet *pkt;
+    char *msg;
+};
+
+typedef struct _callback_data callback_data;
+
+typedef void (*damn_callback)(callback_data);
 
 struct _events {
     unsigned long id;
@@ -20,4 +29,4 @@ typedef struct _events events;
 events *ev_make(void);
 unsigned long ev_hook(events*, char*, damn_callback);
 void ev_unhook(events*, unsigned long);
-void ev_trigger(events*, char*, damn*, packet*);
+void ev_trigger(events*, char*, callback_data);
