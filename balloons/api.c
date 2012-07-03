@@ -71,7 +71,6 @@ void exec_commands(events *e, damn *d, packet *p) {
     
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) return; // non-bodied packet
-    if (strcmp(pkt_getarg(sp, "from"), setting_get(BKEY_USERNAME)) == 0) return; // message from the bot, ignore it
     
     bool triggered = 0;
     char *bod;
