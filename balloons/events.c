@@ -36,7 +36,6 @@ void ev_unhook(events *e, unsigned long id) {
         if (cur->next != NULL && cur->next->id == id) {
             events *nextnext = cur->next->next;
             free(cur->next->name);
-            free(cur->next->d);
             free(cur->next);
             cur->next = nextnext;
         }
