@@ -9,10 +9,14 @@ static const char *get_extension(const char *filename) {
 
 void hook_msg(events *e, bool trigger, char *command, void (*callback)(damn*, packet*)) {
     if (!trigger) {
-        char com[strlen(command) + 11];
-        zero(com, strlen(command) + 11);
-        sprintf(com, "cmd.notrig.%s", command);
-        ev_hook(e, com, callback);
+        if (command == NULL) {
+            ev_hook(e, "cmd.notrig", callback);
+        } else {
+            char com[strlen(command) + 11];
+            zero(com, strlen(command) + 11);
+            sprintf(com, "cmd.notrig.%s", command == NULL ? "" : command);
+            ev_hook(e, com, callback);
+        }
     } else {
         char com[strlen(command) + 9];
         zero(com, strlen(command) + 9);
@@ -58,13 +62,16 @@ void load_libs(events *e) {
             initializer(e);
         }
     }
+    
+    closedir(extdir);
 }
 
 void exec_commands(events *e, damn *d, packet *p) {
     if (strcmp(p->command, "recv") != 0) return;
     
     packet *sp = pkt_subpacket(p);
-    if (sp->body == NULL) return;
+    if (sp->body == NULL) return; // non-bodied packet
+    if (strcmp(pkt_getarg(sp, "from"), setting_get(BKEY_USERNAME)) == 0) return; // message from the bot, ignore it
     
     bool triggered = 0;
     char *bod;
@@ -96,4 +103,5 @@ void exec_commands(events *e, damn *d, packet *p) {
     char *ident = calloc(1, strlen(sp->body) + 11);
     sprintf(ident, "cmd.notrig.%s", sp->body);
     ev_trigger(e, ident, d, p);
+    ev_trigger(e, "cmd.notrig", d, p);
 }
