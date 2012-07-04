@@ -47,7 +47,7 @@ int main (int argc, const char *argv[])
         p = pkt_parse(pkt);
         
         getevtname(evtid, p);
-        ev_trigger(e, evtid, (callback_data){ e, d, p, p->body });
+        ev_trigger(e, evtid, (event_data){ e, d, p, p->body });
         exec_commands(e, d, p);
         
         pkt_free(p);

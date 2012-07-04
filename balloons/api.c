@@ -80,9 +80,9 @@ void exec_commands(events *e, damn *d, packet *p) {
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
         if (strcmp(sp->command, "join") == 0) {
-            ev_trigger(e, "cmd.join", (callback_data){e, d, p, NULL});
+            ev_trigger(e, "cmd.join", (event_data){e, d, p, NULL});
         } else if (strcmp(sp->command, "part") == 0) {
-            ev_trigger(e, "cmd.part", (callback_data){e, d, p, NULL});
+            ev_trigger(e, "cmd.part", (event_data){e, d, p, NULL});
         }
         return;
     }
@@ -110,11 +110,11 @@ void exec_commands(events *e, damn *d, packet *p) {
         if (len > 1) {
             cmdname = calloc(1, len + 9);
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger(e, cmdname, (callback_data){e, d, p, bod + len});
+            ev_trigger(e, cmdname, (event_data){e, d, p, bod + len});
         }
     }
     
-    callback_data cbdata = { e, d, p, sp->body };
+    event_data cbdata = { e, d, p, sp->body };
     
     char *ident = calloc(1, strlen(sp->body) + 11);
     sprintf(ident, "cmd.notrig.%s", sp->body);

@@ -44,7 +44,7 @@ void ev_unhook(events *e, unsigned long id) {
     }
 }
 
-void ev_trigger(events *e, char *evname, callback_data cbdata) {
+void ev_trigger(events *e, char *evname, event_data cbdata) {
     events *cur = e;
     do {
         if (strcmp(cur->name, evname) == 0)
