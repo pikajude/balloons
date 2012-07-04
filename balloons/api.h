@@ -10,7 +10,9 @@
 typedef void (*initfun)(events*);
 
 unsigned long hook_msg(events*, bool, char*, damn_callback);
-#define unhook_msg ev_unhook
+unsigned long hook_join(events*, damn_callback);
+unsigned long hook_part(events*, damn_callback);
+#define unhook ev_unhook
 
 void load_libs(events*);
 

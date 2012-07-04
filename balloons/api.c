@@ -25,6 +25,14 @@ unsigned long hook_msg(events *e, bool trigger, char *command, damn_callback cal
     }
 }
 
+unsigned long hook_join(events *e, damn_callback callback) {
+    return ev_hook(e, "cmd.join", callback);
+}
+
+unsigned long hook_part(events *e, damn_callback callback) {
+    return ev_hook(e, "cmd.part", callback);
+}
+
 void load_libs(events *e) {
     struct dirent *entry;
     DIR *extdir;
@@ -70,7 +78,14 @@ void exec_commands(events *e, damn *d, packet *p) {
     if (strcmp(p->command, "recv") != 0) return;
     
     packet *sp = pkt_subpacket(p);
-    if (sp->body == NULL) return; // non-bodied packet
+    if (sp->body == NULL) {
+        if (strcmp(sp->command, "join") == 0) {
+            ev_trigger(e, "cmd.join", (callback_data){e, d, p, NULL});
+        } else if (strcmp(sp->command, "part") == 0) {
+            ev_trigger(e, "cmd.part", (callback_data){e, d, p, NULL});
+        }
+        return;
+    }
     
     bool triggered = 0;
     char *bod;
