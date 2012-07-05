@@ -7,7 +7,7 @@ static const char *get_extension(const char *filename) {
     return dot + 1;
 }
 
-unsigned long hook_msg(bool trigger, char *command, damn_callback callback) {
+static unsigned long hook_msg(bool trigger, char *command, damn_callback callback) {
     if (!trigger) {
         if (command == NULL) {
             return ev_hook("cmd.notrig", callback);
@@ -25,11 +25,11 @@ unsigned long hook_msg(bool trigger, char *command, damn_callback callback) {
     }
 }
 
-unsigned long hook_join(damn_callback callback) {
+static unsigned long hook_join(damn_callback callback) {
     return ev_hook("cmd.join", callback);
 }
 
-unsigned long hook_part(damn_callback callback) {
+static unsigned long hook_part(damn_callback callback) {
     return ev_hook("cmd.part", callback);
 }
 
@@ -40,6 +40,13 @@ void load_libs(void) {
     initfun initializer;
     const char *ext;
     char path[512] = { 0 };
+    
+    _api a = {
+        &hook_msg,
+        &hook_join,
+        &hook_part,
+        &ev_unhook
+    };
     
     char *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL)
@@ -67,7 +74,7 @@ void load_libs(void) {
                 printf("Symbol %s not found in %s, might want to fix that.\n", BINIT_FUNCTION, path);
                 continue;
             }
-            initializer((_api){ &hook_msg, &hook_join, &hook_part, &ev_unhook });
+            initializer(a);
         }
     }
     

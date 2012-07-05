@@ -15,11 +15,6 @@ typedef struct {
 } _api;
 
 typedef void (*initfun)(_api);
-
-unsigned long hook_msg(bool, char*, damn_callback);
-unsigned long hook_join(damn_callback);
-unsigned long hook_part(damn_callback);
-
 void load_libs(void);
 
 void exec_commands(damn*, packet*);

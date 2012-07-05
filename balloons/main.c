@@ -30,8 +30,6 @@ int main (int argc, const char *argv[])
     packet *p;
     char *evtid = calloc(1, 25);
     
-    printf("%p\n", hook_msg);
-    
     ev_hook("pkt.dAmnServer", &handler_dAmnServer);
     load_libs();
     ev_hook("pkt.login", &handler_login);
