@@ -1,19 +1,27 @@
 #include "events.h"
 
 static unsigned long event_counter = 0;
+static events *evtglob = NULL;
 
 static void ev_keyset(events *e, char *k) {
     e->name = calloc(1, strlen(k) + 1);
     strcpy(e->name, k);
 }
 
-events *ev_make(void) {
+static events *ev_make(void) {
     events *e = calloc(1, sizeof(events));
     e->id = event_counter++;
     return e;
 }
 
-unsigned long ev_hook(events *e, char *evname, damn_callback d) {
+events *ev_get_global(void) {
+    if (evtglob == NULL)
+        evtglob = ev_make();
+    return evtglob;
+}
+
+unsigned long ev_hook(char *evname, damn_callback d) {
+    events *e = ev_get_global();
     if (e->name == NULL) {
         ev_keyset(e, evname);
         e->d = d;
@@ -29,9 +37,14 @@ unsigned long ev_hook(events *e, char *evname, damn_callback d) {
     return e->next->id;
 }
 
-void ev_unhook(events *e, unsigned long id) {
-    events *cur = e;
-    if (e == NULL) return;
+void ev_unhook(unsigned long id) {
+    events *cur = ev_get_global();
+    if (cur->id == id) {
+        evtglob = cur->next;
+        free(cur->name);
+        free(cur);
+        return;
+    }
     for (;;) {
         if (cur->next != NULL && cur->next->id == id) {
             events *nextnext = cur->next->next;
@@ -44,8 +57,8 @@ void ev_unhook(events *e, unsigned long id) {
     }
 }
 
-void ev_trigger(events *e, char *evname, event_data cbdata) {
-    events *cur = e;
+void ev_trigger(char *evname, event_data cbdata) {
+    events *cur = ev_get_global();
     do {
         if (strcmp(cur->name, evname) == 0)
             cur->d(cbdata);

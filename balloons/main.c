@@ -9,6 +9,7 @@
 #include "setup.h"
 
 static void getevtname(char *name, packet *p) {
+    strcat(name, "pkt.");
     strcat(name, p->command);
     if (strcmp(p->command, "property") == 0) {
         strcat(name, ".");
@@ -27,14 +28,15 @@ int main (int argc, const char *argv[])
     
     char *pkt;
     packet *p;
-    char evtid[25] = "pkt.";
+    char *evtid = calloc(1, 25);
     
-    events *e = ev_make();
-    ev_hook(e, "pkt.dAmnServer", &handler_dAmnServer);
-    load_libs(e);
-    ev_hook(e, "pkt.login", &handler_login);
-    ev_hook(e, "pkt.ping", &handler_ping);
-    ev_hook(e, "pkt.property.members", &handler_property_members);
+    printf("%p\n", hook_msg);
+    
+    ev_hook("pkt.dAmnServer", &handler_dAmnServer);
+    load_libs();
+    ev_hook("pkt.login", &handler_login);
+    ev_hook("pkt.ping", &handler_ping);
+    ev_hook("pkt.property.members", &handler_property_members);
     
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
@@ -44,15 +46,22 @@ int main (int argc, const char *argv[])
     
     for (;;) {
         pkt = damn_read(d);
+        if (pkt == NULL) {
+            printf("Whoops, disconnected.\n");
+            damn_disconnect(d);
+            d = damn_make();
+            dhandshake(d);
+            pkt = damn_read(d);
+        }
         p = pkt_parse(pkt);
         
         getevtname(evtid, p);
-        ev_trigger(e, evtid, (event_data){ e, d, p, p->body });
-        exec_commands(e, d, p);
+        ev_trigger(evtid, (event_data){ d, p, p->body });
+        exec_commands(d, p);
         
         pkt_free(p);
         free(pkt);
-        zero(evtid + 4, 18);
+        zero(evtid, 25);
     }
 
     return 0;

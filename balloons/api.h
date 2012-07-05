@@ -7,13 +7,19 @@
 #include "packet.h"
 #include "settings.h"
 
-typedef void (*initfun)(events*);
+typedef struct {
+    unsigned long (*hook_msg)(bool, char*, damn_callback);
+    unsigned long (*hook_join)(damn_callback);
+    unsigned long (*hook_part)(damn_callback);
+    void (*unhook)(unsigned long);
+} _api;
 
-unsigned long hook_msg(events*, bool, char*, damn_callback);
-unsigned long hook_join(events*, damn_callback);
-unsigned long hook_part(events*, damn_callback);
-#define unhook ev_unhook
+typedef void (*initfun)(_api);
 
-void load_libs(events*);
+unsigned long hook_msg(bool, char*, damn_callback);
+unsigned long hook_join(damn_callback);
+unsigned long hook_part(damn_callback);
 
-void exec_commands(events*, damn*, packet*);
+void load_libs(void);
+
+void exec_commands(damn*, packet*);

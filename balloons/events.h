@@ -7,7 +7,6 @@
 struct _events;
 
 typedef struct {
-    struct _events *evt;
     damn *damn;
     packet *pkt;
     char *msg;
@@ -24,7 +23,7 @@ struct _events {
 
 typedef struct _events events;
 
-events *ev_make(void);
-unsigned long ev_hook(events*, char*, damn_callback);
-void ev_unhook(events*, unsigned long);
-void ev_trigger(events*, char*, event_data);
+events *ev_get_global(void);
+unsigned long ev_hook(char*, damn_callback);
+void ev_unhook(unsigned long);
+void ev_trigger(char*, event_data);
