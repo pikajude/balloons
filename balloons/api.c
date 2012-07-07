@@ -74,7 +74,7 @@ void load_libs(void) {
                 printf("Symbol %s not found in %s, might want to fix that.\n", BINIT_FUNCTION, path);
                 continue;
             }
-            initializer(a);
+            initializer(&a);
         }
     }
     

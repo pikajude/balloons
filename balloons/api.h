@@ -14,7 +14,7 @@ typedef struct {
     void (*unhook)(unsigned long);
 } _api;
 
-typedef void (*initfun)(_api);
+typedef void (*initfun)(_api*);
 void load_libs(void);
 
 void exec_commands(damn*, packet*);
