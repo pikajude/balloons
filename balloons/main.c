@@ -35,6 +35,9 @@ int main (int argc, const char *argv[])
     ev_hook("pkt.login", &handler_login);
     ev_hook("pkt.ping", &handler_ping);
     ev_hook("pkt.property.members", &handler_property_members);
+    ev_hook("pkt.property.topic", &handler_property_topic);
+    ev_hook("pkt.property.title", &handler_property_title);
+    ev_hook("pkt.property.privclasses", &handler_property_privclasses);
     
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));

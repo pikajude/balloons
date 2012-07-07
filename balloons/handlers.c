@@ -21,10 +21,21 @@ HANDLER(login) {
 }
 
 HANDLER(ping) {
-    printf("pong!\n");
     dpong(cbdata.damn);
 }
 
 HANDLER(property_members) {
-    printf("Got members for #%s\n", pkt_roomname(cbdata.pkt));
+    printf("Got members for #%s.\n", pkt_roomname(cbdata.pkt));
+}
+
+HANDLER(property_topic) {
+    printf("Got topic for #%s.\n", pkt_roomname(cbdata.pkt));
+}
+
+HANDLER(property_title) {
+    printf("Got title for #%s.\n", pkt_roomname(cbdata.pkt));
+}
+
+HANDLER(property_privclasses) {
+    printf("Got privclasses for #%s.\n", pkt_roomname(cbdata.pkt));
 }
