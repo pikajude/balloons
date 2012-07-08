@@ -62,7 +62,7 @@ static size_t _parse_argpair(packet *p, const char *str) {
         al_set(p->args, key, value);
     
     // consumed key, value, '=' and '\n'
-    return idx + idx_n + 3;
+    return idx + idx_n + 2;
 }
 
 packet *packet_parse(const char *str, int skip_newline) {
