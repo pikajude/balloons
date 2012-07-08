@@ -10,9 +10,10 @@ typedef struct {
     damn *damn;
     packet *pkt;
     char *msg;
-} event_data;
+    char *sender;
+} context;
 
-typedef void (*damn_callback)(event_data);
+typedef void (*damn_callback)(context);
 
 struct _events {
     unsigned long id;
@@ -26,4 +27,4 @@ typedef struct _events events;
 events *ev_get_global(void);
 unsigned long ev_hook(char*, damn_callback);
 void ev_unhook(unsigned long);
-void ev_trigger(char*, event_data);
+void ev_trigger(char*, context);

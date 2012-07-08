@@ -57,7 +57,7 @@ void ev_unhook(unsigned long id) {
     }
 }
 
-void ev_trigger(char *evname, event_data cbdata) {
+void ev_trigger(char *evname, context cbdata) {
     events *cur = ev_get_global();
     do {
         if (strcmp(cur->name, evname) == 0)

@@ -41,12 +41,11 @@ void load_libs(void) {
     const char *ext;
     char path[512] = { 0 };
     
-    _api a = {
-        &hook_msg,
-        &hook_join,
-        &hook_part,
-        &ev_unhook
-    };
+    _api *a = malloc(sizeof(_api));
+    a->hook_msg = hook_msg;
+    a->hook_join = hook_join;
+    a->hook_part = hook_part;
+    a->unhook = ev_unhook;
     
     char *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL)
@@ -74,7 +73,7 @@ void load_libs(void) {
                 printf("Symbol %s not found in %s, might want to fix that.\n", BINIT_FUNCTION, path);
                 continue;
             }
-            initializer(&a);
+            initializer(a);
         }
     }
     
@@ -87,9 +86,9 @@ void exec_commands(damn *d, packet *p) {
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
         if (strcmp(sp->command, "join") == 0) {
-            ev_trigger("cmd.join", (event_data){d, p, NULL});
+            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand});
         } else if (strcmp(sp->command, "part") == 0) {
-            ev_trigger("cmd.part", (event_data){d, p, NULL});
+            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand});
         }
         return;
     }
@@ -117,11 +116,11 @@ void exec_commands(damn *d, packet *p) {
         if (len > 1) {
             cmdname = calloc(1, len + 9);
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger(cmdname, (event_data){d, p, bod + len});
+            ev_trigger(cmdname, (context){d, p, bod + len, pkt_getarg(sp, "from") });
         }
     }
     
-    event_data cbdata = { d, p, sp->body };
+    context cbdata = { d, p, sp->body, pkt_getarg(sp, "from") };
     
     char *ident = calloc(1, strlen(sp->body) + 11);
     sprintf(ident, "cmd.notrig.%s", sp->body);
