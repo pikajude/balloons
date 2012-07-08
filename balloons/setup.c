@@ -5,10 +5,22 @@ static void nuke_settings(void) {
     settings_load(true);
 }
 
-static char getfirstchar(void) {
-    char c = (char)getchar();
-    while (getchar() != '\n');
-    return c;
+static int getfirstchar(void) {
+    int c = getchar();
+    if (c == EOF) {
+        if (feof(stdin)) {
+            printf("Lost user.\n");
+            exit(EXIT_FAILURE);
+        } else
+            return 0;
+    } else {
+        for (;;) {
+            int _unused = getchar();
+            if (_unused == '\n' || _unused == EOF)
+                break;
+        }
+        return c;
+    }
 }
 
 static void setup_get_token(void) {
