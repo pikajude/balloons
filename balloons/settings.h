@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <wordexp.h>
 #include <assert.h>
 #include <errno.h>
@@ -18,7 +19,7 @@ typedef arglist settings;
 
 char *settings_dirname(void);
 char *settings_filename(void);
-void settings_load(int);
+void settings_load(bool);
 void setting_store(char*, char*);
 char *setting_get(char*);
 int setting_exists(char*);

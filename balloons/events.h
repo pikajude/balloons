@@ -1,13 +1,16 @@
 #pragma once
 
 #include <stdlib.h>
+
+struct _damn;
+
 #include "damn.h"
 #include "packet.h"
 
 struct _events;
 
 typedef struct {
-    damn *damn;
+    struct _damn *damn;
     packet *pkt;
     char *msg;
     char *sender;

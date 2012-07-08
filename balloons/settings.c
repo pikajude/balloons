@@ -22,7 +22,7 @@ char *settings_filename(void) {
     return fname;
 }
 
-void settings_load(int reload) {
+void settings_load(bool reload) {
     if (current_settings != NULL && !reload) return;
     
     if (reload) {

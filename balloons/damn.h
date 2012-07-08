@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #ifdef __WIN32
     #include <winsock.h>
 #else
@@ -15,10 +16,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include "defs.h"
+#include "events.h"
 
 struct _damn {
     int _sockd;
-    int _connected;
+    bool _connected;
     int autoreconnect;
     int reconnect_wait;
 };
@@ -26,7 +28,7 @@ struct _damn {
 typedef struct _damn damn;
 
 damn *damn_make(void);
-int damn_connect(damn*);
+bool damn_connect(damn*);
 void damn_disconnect(damn*);
 char* damn_read(damn*);
 ssize_t damn_write(damn*, char*);

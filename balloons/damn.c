@@ -1,5 +1,4 @@
 #include "damn.h"
-#include "events.h"
 
 damn *damn_make(void) {
     damn *d = calloc(1, sizeof *d);
@@ -12,7 +11,7 @@ damn *damn_make(void) {
     return d;
 }
 
-int damn_connect(damn *d) {
+bool damn_connect(damn *d) {
     struct addrinfo addr, *res;
     zero(&addr, sizeof addr);
     addr.ai_family = AF_INET;
