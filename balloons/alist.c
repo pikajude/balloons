@@ -22,7 +22,7 @@ static void al_valueset(arglist *a, char *val) {
 }
 
 arglist *al_make_pair(char *key, char *value) {
-    arglist *a = calloc(1, sizeof(arglist));
+    arglist *a = calloc(1, sizeof *a);
     if (a == NULL)
         handle_err("Unable to allocate memory for arglist");
     al_keyset(a, key);

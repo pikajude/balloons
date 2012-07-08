@@ -41,7 +41,7 @@ void load_libs(void) {
     const char *ext;
     char path[512] = { 0 };
     
-    _api *a = malloc(sizeof(_api));
+    _api *a = malloc(sizeof *a);
     if (a == NULL)
         handle_err("Unable to allocate memory for _api");
     a->hook_msg = hook_msg;

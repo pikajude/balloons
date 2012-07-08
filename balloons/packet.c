@@ -70,7 +70,7 @@ static size_t _parse_argpair(packet *p, const char *str) {
 }
 
 packet *packet_parse(const char *str, int skip_newline) {
-    packet *p = calloc(1, sizeof(packet));
+    packet *p = calloc(1, sizeof *p);
     if (p == NULL)
         handle_err("Unable to allocate packet");
     str += _parse_cmd(p, str);

@@ -11,7 +11,7 @@ static void ev_keyset(events *e, char *k) {
 }
 
 static events *ev_make(void) {
-    events *e = calloc(1, sizeof(events));
+    events *e = calloc(1, sizeof *e);
     if (e == NULL)
         handle_err("Unable to allocate an events");
     e->id = event_counter++;

@@ -2,7 +2,7 @@
 #include "events.h"
 
 damn *damn_make(void) {
-    damn *d = calloc(1, sizeof(damn));
+    damn *d = calloc(1, sizeof *d);
     if (d == NULL)
         return NULL;
     d->reconnect_wait = 5000; // ms
@@ -14,7 +14,7 @@ damn *damn_make(void) {
 
 int damn_connect(damn *d) {
     struct addrinfo addr, *res;
-    zero(&addr, sizeof(addr));
+    zero(&addr, sizeof addr);
     addr.ai_family = AF_INET;
     addr.ai_socktype = SOCK_STREAM;
     getaddrinfo("chat.deviantart.com", "3900", &addr, &res);

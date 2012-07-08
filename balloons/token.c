@@ -1,13 +1,13 @@
 #include "token.h"
 
 static char *response(void) {
-    char date[30];
+    char date[30] = { 0 };
     char *resp = calloc(1, 175);
     if (resp == NULL)
         handle_err("Unable to allocate response room");
     time_t rawtime;
     time(&rawtime);
-    strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", localtime(&rawtime));
+    strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", localtime(&rawtime));
     strcat(resp, "HTTP/1.0 200 OK\r\nDate: ");
     strcat(resp, date);
     strcat(resp, "\r\nContent-Type: text/plain\r\nContent-Length: 52\r\n\r\nThanks for using balloons! You can close the window.\r\n");
@@ -98,16 +98,16 @@ char *token_get_code(void) {
     if (code == NULL)
         handle_err("Unable to allocate memory for OAuth code");
     struct sockaddr_in addr, client_addr;
-    zero(&addr, sizeof(addr));
+    zero(&addr, sizeof addr);
     addr.sin_family = AF_INET;
     addr.sin_port = htons(12345);
     addr.sin_addr.s_addr = INADDR_ANY;
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     int opt = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof opt);
     
-    if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+    if (bind(sockfd, (struct sockaddr *)&addr, sizeof addr) != 0) {
         perror("Failed to bind socket");
         exit(EXIT_FAILURE);
     }
@@ -115,7 +115,7 @@ char *token_get_code(void) {
     
     printf("In whatever browser you use, log into the account for the bot you'll be using.\nThen authorize balloons at http://goo.gl/S3cRb\n");
     
-    socklen_t client_len = sizeof(client_addr);
+    socklen_t client_len = sizeof client_addr;
     int clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
     recv(clientfd, &buffer, sizeof(buffer) - 1, 0);
     sscanf(buffer, "GET /?code=%s", code);
