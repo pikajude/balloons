@@ -28,7 +28,7 @@ static char *extractJSON(char *json, char *key) {
 
 static size_t write_callback(void *data, size_t size1, size_t size2, void *extant_data) {
     size_t newsize = size1 * size2;
-    char **str = (char **)extant_data;
+    char **str = extant_data;
     unsigned long len = strlen(*str);
     *str = realloc(*str, len + newsize + 1);
     if (*str == NULL)
