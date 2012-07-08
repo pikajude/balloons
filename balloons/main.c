@@ -29,6 +29,8 @@ int main (int argc, const char *argv[])
     char *pkt;
     packet *p;
     char *evtid = calloc(1, 25);
+    if (evtid == NULL)
+        handle_err("Unable to allocate for event ID");
     
     ev_hook("pkt.dAmnServer", &handler_dAmnServer);
     load_libs();

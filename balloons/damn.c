@@ -39,6 +39,8 @@ char *damn_read(damn *d) {
     if (!d->_connected)
         return NULL;
     char *res = calloc(1, 8024);
+    if (res == NULL)
+        handle_err("Unable to allocate space for response");
     char buf[1];
     int loc = 0;
     for(;;) {

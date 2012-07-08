@@ -22,6 +22,8 @@ static void setup_get_token(void) {
 
 static void setup_get_trigger(void) {
     char *trigger = calloc(1, strlen(default_trigger) + 1);
+    if (trigger == NULL)
+        handle_err("Unable to allocate trigger space");
     strcpy(trigger, default_trigger);
     size_t size = 1;
     printf("Enter a trigger for the bot [%s]: ", default_trigger);
@@ -44,9 +46,13 @@ static void setup_get_trigger(void) {
 
 static void setup_get_extpath(void) {
     char *path = calloc(1, 1);
+    if (path == NULL)
+        handle_err("Unable to allocate space for path");
     size_t size = 0;
     char *curpath = settings_dirname();
     char *extname = calloc(1, strlen(curpath) + 9);
+    if (extname == NULL)
+        handle_err("Unable to allocate space for extensions path");
     strcat(extname, curpath);
     strcat(extname, "/plugins");
     printf("Enter the (full!) path to the directory where plugins will be stored [%s]: ", extname);

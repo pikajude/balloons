@@ -42,6 +42,8 @@ void load_libs(void) {
     char path[512] = { 0 };
     
     _api *a = malloc(sizeof(_api));
+    if (a == NULL)
+        handle_err("Unable to allocate memory for _api");
     a->hook_msg = hook_msg;
     a->hook_join = hook_join;
     a->hook_part = hook_part;
@@ -115,6 +117,8 @@ void exec_commands(damn *d, packet *p) {
         while (bod[len++] > 32);
         if (len > 1) {
             cmdname = calloc(1, len + 9);
+            if (cmdname == NULL)
+                handle_err("Unable to allocate command name");
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
             ev_trigger(cmdname, (context){d, p, bod + len, pkt_getarg(sp, "from") });
         }
@@ -123,6 +127,8 @@ void exec_commands(damn *d, packet *p) {
     context cbdata = { d, p, sp->body, pkt_getarg(sp, "from") };
     
     char *ident = calloc(1, strlen(sp->body) + 11);
+    if (ident == NULL)
+        perror("Unable to allocate memory for command ID");
     sprintf(ident, "cmd.notrig.%s", sp->body);
     ev_trigger(ident, cbdata);
     ev_trigger("cmd.notrig", cbdata);

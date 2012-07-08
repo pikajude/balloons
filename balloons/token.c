@@ -2,7 +2,9 @@
 
 static char *response(void) {
     char date[30];
-    char *resp = calloc(1, 4000);
+    char *resp = calloc(1, 175);
+    if (resp == NULL)
+        handle_err("Unable to allocate response room");
     time_t rawtime;
     time(&rawtime);
     strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", localtime(&rawtime));
@@ -15,6 +17,8 @@ static char *response(void) {
 static char *extractJSON(char *json, char *key) {
     size_t keylen = strlen(key);
     char *value = malloc(512), formatstring[keylen + 128];
+    if (value == NULL)
+        perror("Unable to allocate memory for JSON value");
     zero(formatstring, keylen + 128);
     size_t idx = 0, jsonlen = strlen(json);
     sprintf(formatstring, "\"%s\": \"%%[^\"]\"", key);
@@ -27,6 +31,8 @@ static size_t write_callback(void *data, size_t size1, size_t size2, void *extan
     char **str = (char **)extant_data;
     unsigned long len = strlen(*str);
     *str = realloc(*str, len + newsize + 1);
+    if (*str == NULL)
+        handle_err("Unable to reallocate string in write_callback");
     strncat(*str, data, newsize);
     return newsize;
 }
@@ -35,11 +41,17 @@ static char *curl_request(char *url, arglist *params) {
     CURL *curl;
     CURLcode response_code;
     char *buffer = malloc(1);
+    if (buffer == NULL)
+        handle_err("Unable to allocate memory for buffer");
     
     char *full_url = malloc(strlen(url));
+    if (full_url == NULL)
+        handle_err("Unable to allocate memory for full URL");
     sprintf(full_url, "%s?", url);
     while (params != NULL) {
         full_url = realloc(full_url, strlen(full_url) + 2 + strlen(params->key) + strlen(params->value));
+        if (full_url == NULL)
+            handle_err("Unable to resize full_url");
         strcat(full_url, params->key);
         strcat(full_url, "=");
         strcat(full_url, params->value);
@@ -83,6 +95,8 @@ char *token_get_code(void) {
         return curtok;
     char buffer[300];
     char *code = malloc(11);
+    if (code == NULL)
+        handle_err("Unable to allocate memory for OAuth code");
     struct sockaddr_in addr, client_addr;
     zero(&addr, sizeof(addr));
     addr.sin_family = AF_INET;

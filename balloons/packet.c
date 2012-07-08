@@ -1,10 +1,11 @@
 #include "packet.h"
 
 static size_t _parse_cmd(packet *p, const char *str) {
-    p->command = malloc(sizeof(char*));
     size_t idx = 0;
     do { idx++; } while (str[idx] != ' ' && str[idx] != '\n');
     p->command = malloc(idx+1);
+    if (p->command == NULL)
+        handle_err("Unable to allocate memory for p->command");
     strncpy(p->command, str, idx);
     p->command[idx] = 0;
     return idx;
@@ -17,6 +18,8 @@ static size_t _parse_subcmd(packet *p, const char *str) {
     str++;
     while (str[idx++] != '\n');
     p->subcommand = malloc(idx);
+    if (p->subcommand == NULL)
+        handle_err("Unable to allocate memory for p->subcommand");
     strncpy(p->subcommand, str, idx-1);
     p->subcommand[idx-1] = 0;
     return idx + 1;
@@ -25,6 +28,8 @@ static size_t _parse_subcmd(packet *p, const char *str) {
 static size_t _parse_body(packet *p, const char *str) {
     size_t len = strlen(str);
     p->body = malloc(len + 1);
+    if (p->body == NULL)
+        handle_err("Unable to allocate memory for p->body");
     strncpy(p->body, str, len);
     p->body[len] = 0;
     return 0; // doesn't matter, because nothing is called after this
@@ -40,6 +45,8 @@ static size_t _parse_argpair(packet *p, const char *str) {
     do { idx++; } while (str[idx] != '=' && str[idx] != '\n');
     if (str[idx] == '\n') return idx + 1;
     char *key = malloc(idx + 1);
+    if (key == NULL)
+        handle_err("Unable to allocate memory for key");
     strncpy(key, str, idx);
     key[idx] = 0;
     str += (idx + 1);
@@ -47,6 +54,8 @@ static size_t _parse_argpair(packet *p, const char *str) {
     // get the value!
     while (str[++idx_n] != '\n');
     char *value = malloc(idx_n + 1);
+    if (value == NULL)
+        handle_err("Unable to allocate memory for value");
     strncpy(value, str, idx_n);
     value[idx_n] = 0;
     
@@ -62,6 +71,8 @@ static size_t _parse_argpair(packet *p, const char *str) {
 
 packet *packet_parse(const char *str, int skip_newline) {
     packet *p = calloc(1, sizeof(packet));
+    if (p == NULL)
+        handle_err("Unable to allocate packet");
     str += _parse_cmd(p, str);
     str += _parse_subcmd(p, str);
     

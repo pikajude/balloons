@@ -8,17 +8,23 @@ static void al_append(arglist *a, char *key, char *value) {
 static void al_keyset(arglist *a, char *key) {
     unsigned long len = strlen(key) + 1;
     a->key = realloc(a->key, len);
+    if (a->key == NULL)
+        handle_err("Unable to allocate memory for key");
     strncpy(a->key, key, len);
 }
 
 static void al_valueset(arglist *a, char *val) {
     unsigned long len = strlen(val) + 1;
     a->value = realloc(a->value, len);
+    if (a->value == NULL)
+        handle_err("Unable to allocate memory for value");
     strncpy(a->value, val, len);
 }
 
 arglist *al_make_pair(char *key, char *value) {
     arglist *a = calloc(1, sizeof(arglist));
+    if (a == NULL)
+        handle_err("Unable to allocate memory for arglist");
     al_keyset(a, key);
     al_valueset(a, value);
     return a;
