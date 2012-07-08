@@ -1,9 +1,8 @@
 #include "packet.h"
 
 static size_t _parse_cmd(packet *p, const char *str) {
-    size_t idx = 0;
-    do { idx++; } while (str[idx] != ' ' && str[idx] != '\n');
-    p->command = malloc(idx+1);
+    size_t idx = strcspn(str, " \n");
+    p->command = malloc(idx + 1);
     if (p->command == NULL)
         handle_err("Unable to allocate memory for p->command");
     strncpy(p->command, str, idx);
@@ -14,14 +13,13 @@ static size_t _parse_cmd(packet *p, const char *str) {
 static size_t _parse_subcmd(packet *p, const char *str) {
     if (*str != ' ')
         return 0;
-    size_t idx = 0;
     str++;
-    while (str[idx++] != '\n');
+    size_t idx = strcspn(str, "\n") + 1;
     p->subcommand = malloc(idx);
     if (p->subcommand == NULL)
         handle_err("Unable to allocate memory for p->subcommand");
-    strncpy(p->subcommand, str, idx-1);
-    p->subcommand[idx-1] = 0;
+    strncpy(p->subcommand, str, idx - 1);
+    p->subcommand[idx - 1] = 0;
     return idx + 1;
 }
 
@@ -39,10 +37,8 @@ static size_t _parse_argpair(packet *p, const char *str) {
     // at the end of the argument pairs
     if (*str == 0 || *str == '\n') return 0;
     
-    size_t idx = 0, idx_n = 0;
-    
     // get the key
-    do { idx++; } while (str[idx] != '=' && str[idx] != '\n');
+    size_t idx = strcspn(str, "=\n");
     if (str[idx] == '\n') return idx + 1;
     char *key = malloc(idx + 1);
     if (key == NULL)
@@ -52,7 +48,7 @@ static size_t _parse_argpair(packet *p, const char *str) {
     str += (idx + 1);
     
     // get the value!
-    while (str[++idx_n] != '\n');
+    size_t idx_n = strcspn(str, "\n");
     char *value = malloc(idx_n + 1);
     if (value == NULL)
         handle_err("Unable to allocate memory for value");
@@ -66,7 +62,7 @@ static size_t _parse_argpair(packet *p, const char *str) {
         al_set(p->args, key, value);
     
     // consumed key, value, '=' and '\n'
-    return idx + idx_n + 2;
+    return idx + idx_n + 3;
 }
 
 packet *packet_parse(const char *str, int skip_newline) {
