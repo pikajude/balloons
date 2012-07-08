@@ -40,15 +40,15 @@ char *damn_read(damn *d) {
     char *res = calloc(1, 8024);
     if (res == NULL)
         handle_err("Unable to allocate space for response");
-    char buf[1];
+    char buf;
     int loc = 0;
     for(;;) {
         if(recv(d->_sockd, &buf, 1, 0) <= 0) {
             damn_disconnect(d);
             return NULL;
-        } else if(*buf == 0) {
+        } else if(buf == 0) {
             return res;
         } else
-            res[loc++] = *buf;
+            res[loc++] = buf;
     }
 }
