@@ -8,7 +8,14 @@
 #include "settings.h"
 
 typedef struct {
-    unsigned long (*hook_msg)(bool, char*, damn_callback);
+    bool triggered;
+    char *name;
+    damn_callback callback;
+    unsigned char access;
+} command;
+
+typedef struct {
+    unsigned long (*hook_msg)(command);
     unsigned long (*hook_join)(damn_callback);
     unsigned long (*hook_part)(damn_callback);
     void (*unhook)(unsigned long);

@@ -15,6 +15,7 @@ static events *ev_make(void) {
     if (e == NULL)
         handle_err("Unable to allocate an events");
     e->id = event_counter++;
+    e->access = 0;
     return e;
 }
 
@@ -24,11 +25,12 @@ events *ev_get_global(void) {
     return evtglob;
 }
 
-unsigned long ev_hook(char *evname, damn_callback d) {
+unsigned long ev_hook(char *evname, damn_callback d, unsigned char access) {
     events *e = ev_get_global();
     if (e->name == NULL) {
         ev_keyset(e, evname);
         e->d = d;
+        e->access = access;
         return e->id;
     }
     
@@ -38,6 +40,7 @@ unsigned long ev_hook(char *evname, damn_callback d) {
     e->next = ev_make();
     ev_keyset(e->next, evname);
     e->next->d = d;
+    e->next->access = access;
     return e->next->id;
 }
 
@@ -61,10 +64,14 @@ void ev_unhook(unsigned long id) {
     }
 }
 
-void ev_trigger(char *evname, context cbdata) {
+void ev_trigger_priv(char *evname, context cbdata, unsigned char level) {
     events *cur = ev_get_global();
     do {
-        if (strcmp(cur->name, evname) == 0)
+        if (strcmp(cur->name, evname) == 0 && cur->access <= level)
             cur->d(cbdata);
     } while ((cur = cur->next) != NULL);
+}
+
+void ev_trigger(char *evname, context cbdata) {
+    return ev_trigger_priv(evname, cbdata, 255);
 }

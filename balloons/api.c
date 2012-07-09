@@ -7,30 +7,30 @@ static const char *get_extension(const char *filename) {
     return dot + 1;
 }
 
-static unsigned long hook_msg(bool trigger, char *command, damn_callback callback) {
-    if (!trigger) {
-        if (command == NULL) {
-            return ev_hook("cmd.notrig", callback);
+static unsigned long hook_msg(command cmd) {
+    if (!cmd.triggered) {
+        if (cmd.name == NULL) {
+            return ev_hook("cmd.notrig", cmd.callback, cmd.access);
         } else {
-            char com[strlen(command) + 11];
-            zero(com, strlen(command) + 11);
-            sprintf(com, "cmd.notrig.%s", command);
-            return ev_hook(com, callback);
+            char com[strlen(cmd.name) + 11];
+            zero(com, strlen(cmd.name) + 11);
+            sprintf(com, "cmd.notrig.%s", cmd.name);
+            return ev_hook(com, cmd.callback, cmd.access);
         }
     } else {
-        char com[strlen(command) + 9];
-        zero(com, strlen(command) + 9);
-        sprintf(com, "cmd.trig.%s", command);
-        return ev_hook(com, callback);
+        char com[strlen(cmd.name) + 9];
+        zero(com, strlen(cmd.name) + 9);
+        sprintf(com, "cmd.trig.%s", cmd.name);
+        return ev_hook(com, cmd.callback, cmd.access);
     }
 }
 
 static unsigned long hook_join(damn_callback callback) {
-    return ev_hook("cmd.join", callback);
+    return ev_hookany("cmd.join", callback);
 }
 
 static unsigned long hook_part(damn_callback callback) {
-    return ev_hook("cmd.part", callback);
+    return ev_hookany("cmd.part", callback);
 }
 
 void load_libs(void) {
