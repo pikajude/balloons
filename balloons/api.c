@@ -8,6 +8,7 @@ static const char *get_extension(const char *filename) {
 }
 
 static unsigned long hook_msg(command cmd) {
+    assert(cmd.name == NULL || (cmd.name != NULL && strlen(cmd.name) < BCMDLEN_MAX));
     if (!cmd.triggered) {
         if (cmd.name == NULL) {
             return ev_hook("cmd.notrig", cmd.callback, cmd.access);
@@ -48,7 +49,7 @@ void load_libs(void) {
     a->hook_join = hook_join;
     a->hook_part = hook_part;
     a->unhook = ev_unhook;
-    a->events = ev_get_global;
+    a->events = ev_get_global();
     
     char *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL)

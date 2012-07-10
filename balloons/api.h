@@ -19,7 +19,7 @@ typedef struct {
     unsigned long (*hook_join)(damn_callback);
     unsigned long (*hook_part)(damn_callback);
     void (*unhook)(unsigned long);
-    events *(*events)(void);
+    events *events;
 } _api;
 
 typedef void (*initfun)(_api*);
