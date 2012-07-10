@@ -48,6 +48,7 @@ void load_libs(void) {
     a->hook_join = hook_join;
     a->hook_part = hook_part;
     a->unhook = ev_unhook;
+    a->events = ev_get_global;
     
     char *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL)
