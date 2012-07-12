@@ -6,6 +6,7 @@
 #include "damn.h"
 #include "packet.h"
 #include "settings.h"
+#include "utils.h"
 
 typedef struct {
     bool triggered;

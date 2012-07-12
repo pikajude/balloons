@@ -21,3 +21,26 @@ void quicksort(void **arr, int beg, int end, int comparator(const void *, const 
         quicksort(arr, r, end, comparator);
     }
 }
+
+unsigned char access_get(char *uname) {
+    unsigned char access;
+    char *setting_name = calloc(1, strlen(uname) + 8);
+    strcpy(setting_name, "access.");
+    strcat(setting_name, uname);
+    
+    char *setting = setting_get(setting_name);
+    if (setting == NULL)
+        access = 0;
+    else
+        sscanf(setting, "%d", &access);
+    return access;
+}
+
+void access_store(char *uname, unsigned char access) {
+    char *acbuf = calloc(1, 3);
+    char *setting_name = calloc(1, strlen(uname) + 8);
+    strcpy(setting_name, "access.");
+    strcat(setting_name, uname);
+    sprintf(acbuf, "%d", access);
+    setting_store(setting_name, acbuf);
+}

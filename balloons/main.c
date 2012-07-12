@@ -40,7 +40,7 @@ int main (int argc, const char *argv[])
     ev_hookany("pkt.property.topic", &handler_property_topic);
     ev_hookany("pkt.property.title", &handler_property_title);
     ev_hookany("pkt.property.privclasses", &handler_property_privclasses);
-    
+
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
     

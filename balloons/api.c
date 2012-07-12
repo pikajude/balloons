@@ -115,6 +115,9 @@ void exec_commands(damn *d, packet *p) {
         bod = sp->body + uname_len + 2;
     }
     
+    char *sender = pkt_getarg(sp, "from");
+    unsigned char senderaccess = access_get(sender);
+    
     if (triggered) {
         while (bod[len++] > 32);
         if (len > 1) {
@@ -122,16 +125,16 @@ void exec_commands(damn *d, packet *p) {
             if (cmdname == NULL)
                 handle_err("Unable to allocate command name");
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger(cmdname, (context){d, p, bod + len, pkt_getarg(sp, "from") });
+            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
         }
     }
     
-    context cbdata = { d, p, sp->body, pkt_getarg(sp, "from") };
+    context cbdata = { d, p, sp->body, sender };
     
     char *ident = calloc(1, strlen(sp->body) + 11);
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
     sprintf(ident, "cmd.notrig.%s", sp->body);
-    ev_trigger(ident, cbdata);
-    ev_trigger("cmd.notrig", cbdata);
+    ev_trigger_priv(ident, cbdata, senderaccess);
+    ev_trigger_priv("cmd.notrig", cbdata, senderaccess);
 }

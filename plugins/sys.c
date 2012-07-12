@@ -76,17 +76,8 @@ static void echo(context ctx) {
 }
 
 static void commands(context ctx) {
-    size_t idx = 0, fullsize = 24, i = -1, j;
-    unsigned char access;
-    char *setting_name = calloc(1, strlen(ctx.sender) + 8);
-    strcpy(setting_name, "access.");
-    strcat(setting_name, ctx.sender);
-    
-    char *setting = setting_get(setting_name);
-    if (setting == NULL)
-        access = 0;
-    else
-        sscanf(setting, "%c", &access);
+    size_t idx = 0, fullsize = 24, i = (size_t)-1, j;
+    unsigned char access = access_get(ctx.sender);
     
     events **commands = calloc(1, fullsize * sizeof(char*));
     events *cur = api->events;
@@ -101,7 +92,7 @@ static void commands(context ctx) {
         }
     } while ((cur = cur->next) != NULL);
     while (commands[++i] != NULL);
-    quicksort((void **)commands, 0, i, cmp_events);
+    quicksort((void **)commands, 0, (int)i, cmp_events);
     
     char *msgstr = malloc(10 + (i * (BCMDLEN_MAX + 7)) + i);
     strcpy(msgstr, "Commands: ");
