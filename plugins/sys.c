@@ -109,6 +109,22 @@ static void commands(context ctx) {
     dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
 }
 
+static void cdecl(context ctx) {
+    char response[1024] = { 0 };
+    if (strchr(ctx.msg, '\'') != NULL) {
+        strcpy(response, "syntax error");
+    } else {
+        char cmd[strlen(ctx.msg) + 30];
+        strcpy(cmd, "echo '");
+        strcat(cmd, ctx.msg);
+        strcat(cmd, "' | /usr/local/bin/cdecl");
+        FILE *f = popen(cmd, "r");
+        fread(response, 1023, 1, f);
+        pclose(f);
+    }
+    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), response);
+}
+
 void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
@@ -117,4 +133,5 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "echo", .callback = &echo, .access = 1 });
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
+    api->hook_msg((command){ .triggered = true, .name = "cdecl", .callback = &cdecl });
 }

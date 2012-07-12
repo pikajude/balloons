@@ -116,7 +116,7 @@ void exec_commands(damn *d, packet *p) {
     }
     
     char *sender = pkt_getarg(sp, "from");
-    unsigned char senderaccess = access_get(sender);
+    unsigned char senderaccess = sender == NULL ? 0 : access_get(sender);
     
     if (triggered) {
         while (bod[len++] > 32);
