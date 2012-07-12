@@ -44,3 +44,13 @@ void access_store(char *uname, unsigned char access) {
     sprintf(acbuf, "%d", access);
     setting_store(setting_name, acbuf);
 }
+
+unsigned char access_get_cmd(events *e, char *cmdname) {
+    events *cur = e;
+    while (cur != NULL) {
+        if (strcmp(cur->name + 9, cmdname) == 0 || strcmp(cur->name + 11, cmdname) == 0)
+            return cur->access;
+        cur = cur->next;
+    }
+    return 255;
+}

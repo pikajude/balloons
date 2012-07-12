@@ -125,6 +125,19 @@ static void cdecl(context ctx) {
     dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), response);
 }
 
+static void can(context ctx) {
+    char uname[128], cmd[128];
+    unsigned char uaccess, caccess;
+    if (sscanf(ctx.msg, "%s use %[^? ]?", uname, cmd) < 2) {
+        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "I don't know.");
+    } else {
+        if ((uname[0] == 'I' || uname[0] == 'i') && uname[1] == '\0') strcpy(uname, ctx.sender);
+        uaccess = access_get(uname);
+        caccess = access_get_cmd(api->events, cmd);
+        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), uaccess >= caccess ? "Yes." : "No.");
+    }
+}
+
 void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
@@ -134,4 +147,5 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "cdecl", .callback = &cdecl });
+    api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
 }
