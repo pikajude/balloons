@@ -6,6 +6,7 @@ TARGET=build/balloons
 INCLUDE=-I/usr/local/include
 LDFLAGS=-L/usr/local/lib
 LDLIBS=-lcurl
+PREFIX=/usr/local
 
 SRCEXT=c
 SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
@@ -20,5 +21,11 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
  
 clean:
 	rm -r $(BUILDDIR) $(TARGET)
+
+install:
+	install -m 0755 $(TARGET) $(PREFIX)/bin
+
+uninstall:
+	rm -f $(PREFIX)/bin/balloons
  
-.PHONY: clean
+.PHONY: clean install uninstall
