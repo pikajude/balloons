@@ -8,8 +8,6 @@
 #include "api.h"
 #include "protocol.h"
 
-#define ANYONE 0
-
 static _api *api;
 static unsigned long pingsendid = 0, pinghookid = 0;
 static long microseconds = 0;
