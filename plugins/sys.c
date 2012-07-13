@@ -7,8 +7,6 @@
 #endif
 #include "api.h"
 #include "protocol.h"
-#include "events.h"
-#include "utils.h"
 
 #define ANYONE 0
 
@@ -127,6 +125,10 @@ static void can(context ctx) {
     }
 }
 
+static void maccess(context ctx) {
+    
+}
+
 void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
@@ -136,4 +138,5 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
+	api->hook_msg((command){ .triggered = true, .name = "access", .callback = &maccess });
 }
