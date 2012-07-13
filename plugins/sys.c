@@ -44,7 +44,7 @@ static void trigcheck(context ctx) {
     char *tc = calloc(1, strlen(uname) + 12);
     sprintf(tc, "%s: trigcheck", uname);
     if (strstr(ctx.msg, tc) != NULL)
-        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: %s", ctx.sender, setting_get(BKEY_TRIGGER));
+        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: %s (or '%s: ')", ctx.sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
 }
 
 static void botcheck(context ctx) {
@@ -131,10 +131,15 @@ static void can(context ctx) {
     if (sscanf(ctx.msg, "%s use %[^? ]?", uname, cmd) < 2) {
         dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "I don't know.");
     } else {
-        if ((uname[0] == 'I' || uname[0] == 'i') && uname[1] == '\0') strcpy(uname, ctx.sender);
-        uaccess = access_get(uname);
         caccess = access_get_cmd(api->events, cmd);
-        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), uaccess >= caccess ? "Yes." : "No.");
+        if (strcmp(uname, "everyone") == 0) {
+            dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), caccess == 0 ? "Yes." : "No.");
+        } else {
+            if (strcmp(uname, "I") == 0 || strcmp(uname, "i") == 0)
+                strcpy(uname, ctx.sender);
+            uaccess = access_get(uname);
+            dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), uaccess >= caccess ? "Yes." : "No.");
+        }
     }
 }
 
