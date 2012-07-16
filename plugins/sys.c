@@ -90,7 +90,7 @@ static void commands(context ctx) {
     while (commands[++i] != NULL);
     quicksort((void **)commands, 0, (int)i, cmp_events);
     
-    char *msgstr = malloc(10 + (i * (BCMDLEN_MAX + 7)) + i);
+    char *msgstr = malloc(10 + i * (BCMDLEN_MAX + 8));
     strcpy(msgstr, "Commands: ");
     
     for(j = 0; j < i; j++) {
