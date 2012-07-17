@@ -62,6 +62,7 @@ static void trigcheck(context ctx) {
     sprintf(tc, "%s: trigcheck", uname);
     if (strstr(ctx.msg, tc) != NULL)
         dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: %s (or '%s: ')", ctx.sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
+    free(tc);
 }
 
 static void botcheck(context ctx) {
@@ -70,6 +71,7 @@ static void botcheck(context ctx) {
     sprintf(bc, "%s: botcheck", uname);
     if (strstr(ctx.msg, bc) != NULL)
         dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: I'm a bot!", ctx.sender);
+    free(bc);
 }
 
 static void ping(context);
@@ -124,6 +126,7 @@ static void commands(context ctx) {
     }
     
     dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
+    free(commands);
 }
 
 static void can(context ctx) {
@@ -170,6 +173,7 @@ static void laccess(context ctx) {
         strcat(msgstr, ") ");
     }
     dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
+    free(pairs);
 }
 
 void balloons_init(_api *a) {
