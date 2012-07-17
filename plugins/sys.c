@@ -7,6 +7,7 @@
 #endif
 #include "api.h"
 #include "protocol.h"
+#include "alist.h"
 
 static _api *api;
 static unsigned long pingsendid = 0, pinghookid = 0;
@@ -123,8 +124,9 @@ static void can(context ctx) {
     }
 }
 
-static void maccess(context ctx) {
-    
+static void laccess(context ctx) {
+    settings *s = settings_all();
+    al_print(s);
 }
 
 void balloons_init(_api *a) {
@@ -136,5 +138,5 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
-	api->hook_msg((command){ .triggered = true, .name = "access", .callback = &maccess });
+	api->hook_msg((command){ .triggered = true, .name = "access list", .callback = &laccess });
 }

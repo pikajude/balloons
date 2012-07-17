@@ -17,6 +17,7 @@
 
 typedef arglist settings;
 
+settings *settings_all(void);
 char *settings_dirname(void);
 char *settings_filename(void);
 void settings_load(bool);

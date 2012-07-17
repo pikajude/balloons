@@ -2,6 +2,10 @@
 
 static settings *current_settings = NULL;
 
+settings *settings_all(void) {
+    return current_settings;
+}
+
 char *settings_dirname(void) {
     char *fn = calloc(1, 512);
     if (fn == NULL)
