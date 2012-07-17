@@ -15,9 +15,7 @@ Plugins
 -------
 
     $ cd plugins
-    $ sh make.sh sys
-    $ sh make.sh damn
-    $ (etc.)
+    $ ./make
 
 This will produce a bunch of `.so` files in the `plugins/` directory.
 
