@@ -1,0 +1,26 @@
+#!/bin/bash
+debug=""
+while getopts "d" opt; do
+    case $opt in
+        d)
+            debug="-g"
+            shift
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit
+            ;;
+    esac
+done
+
+if [[ -z $1 ]]; then
+    echo "Usage: sh make.sh name_of_library"
+    exit
+fi
+echo "gcc -Wall -fPIC -c $debug \"$1.c\" -I../balloons"
+gcc -Wall -fPIC -c $debug "$1.c" -I../balloons
+if [[ $? -ne 0 ]]; then
+    exit
+fi
+echo "gcc -shared \"-Wl,-install_name,$1.so\" -o \"$1.so\" \"$1.o\" ../build/*.o -lcurl"
+gcc -shared "-Wl,-install_name,$1.so" -o "$1.so" "$1.o" ../build/*.o -lcurl
