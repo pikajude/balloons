@@ -30,7 +30,7 @@ int main (int argc, const char *argv[])
     packet *p;
     char *evtid = calloc(1, 25);
     if (evtid == NULL)
-        handle_err("Unable to allocate for event ID");
+        HANDLE_ERR("Unable to allocate for event ID");
     
     ev_hookany("pkt.dAmnServer", &handler_dAmnServer);
     load_libs();

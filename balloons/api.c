@@ -44,7 +44,7 @@ void load_libs(void) {
     
     _api *a = malloc(sizeof *a);
     if (a == NULL)
-        handle_err("Unable to allocate memory for _api");
+        HANDLE_ERR("Unable to allocate memory for _api");
     a->hook_msg = hook_msg;
     a->hook_join = hook_join;
     a->hook_part = hook_part;
@@ -123,7 +123,7 @@ void exec_commands(damn *d, packet *p) {
         if (len > 1) {
             cmdname = calloc(1, len + 9);
             if (cmdname == NULL)
-                handle_err("Unable to allocate command name");
+                HANDLE_ERR("Unable to allocate command name");
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
             ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
         }

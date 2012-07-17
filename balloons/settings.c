@@ -9,7 +9,7 @@ settings *settings_all(void) {
 char *settings_dirname(void) {
     char *fn = calloc(1, 512);
     if (fn == NULL)
-        handle_err("Unable to allocate space for home directory");
+        HANDLE_ERR("Unable to allocate space for home directory");
     char *home = getenv("HOME");
     snprintf(fn, 511, "%s/.balloons", home);
     return fn;
@@ -19,7 +19,7 @@ char *settings_filename(void) {
     char *dirname = settings_dirname();
     char *fname = calloc(1, strlen(dirname) + 8);
     if (fname == NULL)
-        handle_err("Unable to allocate space for settings filename");
+        HANDLE_ERR("Unable to allocate space for settings filename");
     strcat(fname, dirname);
     strcat(fname, "/config");
     free(dirname);

@@ -11,4 +11,4 @@
 
 #define zero(a,b) memset(a,0,b)
 
-#define handle_err(str) do { perror(str); exit(EXIT_FAILURE); } while (0)
+#define HANDLE_ERR(str) do { perror(str); exit(EXIT_FAILURE); } while (0)

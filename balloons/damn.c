@@ -39,7 +39,7 @@ char *damn_read(damn *d) {
         return NULL;
     char *res = calloc(1, 8024);
     if (res == NULL)
-        handle_err("Unable to allocate space for response");
+        HANDLE_ERR("Unable to allocate space for response");
     char buf;
     int loc = 0;
     for(;;) {

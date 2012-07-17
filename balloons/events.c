@@ -6,14 +6,14 @@ static events *evtglob = NULL;
 static void ev_keyset(events *e, char *k) {
     e->name = calloc(1, strlen(k) + 1);
     if (e->name == NULL)
-        handle_err("Unable to allocate space for e->name");
+        HANDLE_ERR("Unable to allocate space for e->name");
     strcpy(e->name, k);
 }
 
 static events *ev_make(void) {
     events *e = calloc(1, sizeof *e);
     if (e == NULL)
-        handle_err("Unable to allocate an events");
+        HANDLE_ERR("Unable to allocate an events");
     e->id = event_counter++;
     e->access = 0;
     return e;
