@@ -9,6 +9,11 @@
 #include "protocol.h"
 #include "alist.h"
 
+struct access_pair {
+    char *user;
+    char *level;
+};
+
 static _api *api;
 static unsigned long pingsendid = 0, pinghookid = 0;
 static long microseconds = 0;
@@ -24,6 +29,21 @@ static long microtime(void) {
 
 static int cmp_events(const void *e1, const void *e2) {
     return strcmp(((events *)e1)->name, ((events *)e2)->name);
+}
+
+static int cmp_strint(const void *s1, const void *s2) {
+    char *str1 = ((struct access_pair *)s1)->level, *str2 = ((struct access_pair *)s2)->level;
+    size_t l1 = strlen(str1), l2 = strlen(str2), i;
+    if (l1 != l2)
+        return l1 > l2 ? 1 : -1;
+    for (i = 0; i < l1; i++) {
+        if (str1[i] > str2[i]) {
+            return 1;
+        } else if (str1[i] < str2[i]) {
+            return -1;
+        }
+    }
+    return 1;
 }
 
 static void about(context ctx) {
@@ -125,8 +145,31 @@ static void can(context ctx) {
 }
 
 static void laccess(context ctx) {
+    size_t fullsize = 24, cur = 0;
+    struct access_pair *pairs = calloc(1, fullsize * sizeof(struct access_pair));
     settings *s = settings_all();
-    al_print(s);
+    while (s != NULL) {
+        if (strncmp(s->key, "access.", 7) == 0) {
+            pairs[cur++] = (struct access_pair){s->key + 7, s->value};
+        }
+        if (cur == fullsize - 1) {
+            fullsize += 8;
+            pairs = realloc(pairs, fullsize * sizeof(struct access_pair));
+            if (pairs == NULL)
+                handle_err("Couldn't allocate pairs");
+        }
+        s = s->next;
+    }
+    quicksort((void **)&pairs, 0, (int)cur, cmp_strint);
+    
+    char *msgstr = calloc(1, cur * 26);
+    for (fullsize = 0; fullsize < cur; fullsize++) {
+        strcat(msgstr, pairs[fullsize].user);
+        strcat(msgstr, "(");
+        strcat(msgstr, pairs[fullsize].level);
+        strcat(msgstr, ") ");
+    }
+    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
 }
 
 void balloons_init(_api *a) {
@@ -138,5 +181,6 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
-	api->hook_msg((command){ .triggered = true, .name = "access list", .callback = &laccess });
+	api->hook_msg((command){ .triggered = true, .name = "access", .callback = &laccess });
+    settings_load(true);
 }
