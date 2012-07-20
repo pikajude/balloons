@@ -3,7 +3,10 @@
 #include <sys/time.h>
 #include <string.h>
 #ifndef __WIN32__
-    #include <sys/utsname.h>
+#include <sys/utsname.h>
+#endif
+#ifdef __APPLE__
+#include <mach/mach.h>
 #endif
 #include "api.h"
 #include "protocol.h"
@@ -53,6 +56,15 @@ static void about(context ctx) {
     struct utsname u;
     uname(&u);
     dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
+#endif
+}
+
+static void memuse(context ctx) {
+#ifdef __APPLE__
+    struct task_basic_info info;
+    mach_msg_type_number_t size = sizeof info;
+    task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
+    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "Memory usage in bytes: %lu", info.resident_size);
 #endif
 }
 
@@ -107,7 +119,7 @@ static void commands(context ctx) {
             fullsize += 8;
             commands = realloc(commands, fullsize * sizeof(char*));
             if (commands == NULL)
-                handle_err("couldn't resize commands");
+                HANDLE_ERR("couldn't resize commands");
         }
     } while ((cur = cur->next) != NULL);
     while (commands[++i] != NULL);
@@ -159,7 +171,7 @@ static void laccess(context ctx) {
             fullsize += 8;
             pairs = realloc(pairs, fullsize * sizeof(struct access_pair));
             if (pairs == NULL)
-                handle_err("Couldn't allocate pairs");
+                HANDLE_ERR("Couldn't allocate pairs");
         }
         s = s->next;
     }
@@ -186,5 +198,6 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
 	api->hook_msg((command){ .triggered = true, .name = "access", .callback = &laccess });
+    api->hook_msg((command){ .triggered = true, .name = "memuse", .callback = &memuse });
     settings_load(true);
 }
