@@ -26,7 +26,7 @@ struct _events {
     char *name;
     damn_callback d;
     unsigned char access;
-    bool threaded;
+    bool async;
     struct _events *next;
 };
 

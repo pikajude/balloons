@@ -192,7 +192,7 @@ void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
     api->hook_msg((command){ .callback = &botcheck });
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping, .nothread = true });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
     api->hook_msg((command){ .triggered = true, .name = "echo", .callback = &echo, .access = 1 });
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });

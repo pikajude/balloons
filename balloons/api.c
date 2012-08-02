@@ -11,19 +11,19 @@ static unsigned long hook_msg(command cmd) {
     assert(cmd.name == NULL || (cmd.name != NULL && strlen(cmd.name) < BCMDLEN_MAX));
     if (!cmd.triggered) {
         if (cmd.name == NULL) {
-            return ev_hook("cmd.notrig", cmd.callback, cmd.access, cmd.nothread);
+            return ev_hook("cmd.notrig", cmd.callback, cmd.access, cmd.async);
         } else {
             char com[strlen(cmd.name) + 11];
             zero(com, strlen(cmd.name) + 11);
             sprintf(com, "cmd.notrig.%s", cmd.name);
-            return ev_hook(com, cmd.callback, cmd.access, cmd.nothread);
+            return ev_hook(com, cmd.callback, cmd.access, cmd.async);
         }
     } else {
         assert(cmd.name != NULL);
         char com[strlen(cmd.name) + 9];
         zero(com, strlen(cmd.name) + 9);
         sprintf(com, "cmd.trig.%s", cmd.name);
-        return ev_hook(com, cmd.callback, cmd.access, cmd.nothread);
+        return ev_hook(com, cmd.callback, cmd.access, cmd.async);
     }
 }
 
