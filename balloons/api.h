@@ -10,6 +10,7 @@
 
 typedef struct {
     bool triggered;
+    bool nothread;
     char *name;
     damn_callback callback;
     unsigned char access;

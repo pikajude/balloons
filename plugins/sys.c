@@ -92,12 +92,12 @@ static void pong(context *ctx) {
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "pong! (%ldms)", (microtime() - microseconds) / 1000);
     api->unhook(pingsendid);
     pingsendid = microseconds = 0;
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping, .nothread = true });
 } 
 
 static void ping(context *ctx) {
     api->unhook(pinghookid);
-    pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong });
+    pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong, .nothread = true });
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "ping?");
     microseconds = microtime();
 }
@@ -192,12 +192,12 @@ void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
     api->hook_msg((command){ .callback = &botcheck });
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping, .nothread = true });
     api->hook_msg((command){ .triggered = true, .name = "echo", .callback = &echo, .access = 1 });
     api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
     api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
-	api->hook_msg((command){ .triggered = true, .name = "access", .callback = &laccess });
+    api->hook_msg((command){ .triggered = true, .name = "access", .callback = &laccess });
     api->hook_msg((command){ .triggered = true, .name = "memuse", .callback = &memuse });
     settings_load(true);
 }

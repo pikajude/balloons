@@ -25,12 +25,13 @@ events *ev_get_global(void) {
     return evtglob;
 }
 
-unsigned long ev_hook(char *evname, damn_callback d, unsigned char _access) {
+unsigned long ev_hook(char *evname, damn_callback d, unsigned char _access, bool nothread) {
     events *e = ev_get_global();
     if (e->name == NULL) {
         ev_keyset(e, evname);
         e->d = d;
         e->access = _access;
+        e->threaded = !nothread;
         return e->id;
     }
     
@@ -41,6 +42,7 @@ unsigned long ev_hook(char *evname, damn_callback d, unsigned char _access) {
     ev_keyset(e->next, evname);
     e->next->d = d;
     e->next->access = _access;
+    e->next->threaded = !nothread;
     return e->next->id;
 }
 
@@ -64,21 +66,20 @@ void ev_unhook(unsigned long id) {
     }
 }
 
-void ev_trigger_priv(char *evname, context cbdata, bool threaded, unsigned char level) {
+void ev_trigger_priv(char *evname, context cbdata, unsigned char level) {
     events *cur = ev_get_global();
     do {
         if (cur->name == NULL)
             return;
         if (strcmp(cur->name, evname) == 0 && cur->access <= level) {
-            if (threaded) {
+            if (cur->threaded)
                 dispatch(cur->name, CMD_TIMEOUT, cur->d, &cbdata);
-            } else {
+            else
                 cur->d(&cbdata);
-            }
         }
     } while ((cur = cur->next) != NULL);
 }
 
-void ev_trigger(char *evname, context cbdata, bool threaded) {
-    return ev_trigger_priv(evname, cbdata, threaded, 255);
+void ev_trigger(char *evname, context cbdata) {
+    return ev_trigger_priv(evname, cbdata, 255);
 }

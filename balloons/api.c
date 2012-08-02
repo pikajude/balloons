@@ -11,19 +11,19 @@ static unsigned long hook_msg(command cmd) {
     assert(cmd.name == NULL || (cmd.name != NULL && strlen(cmd.name) < BCMDLEN_MAX));
     if (!cmd.triggered) {
         if (cmd.name == NULL) {
-            return ev_hook("cmd.notrig", cmd.callback, cmd.access);
+            return ev_hook("cmd.notrig", cmd.callback, cmd.access, cmd.nothread);
         } else {
             char com[strlen(cmd.name) + 11];
             zero(com, strlen(cmd.name) + 11);
             sprintf(com, "cmd.notrig.%s", cmd.name);
-            return ev_hook(com, cmd.callback, cmd.access);
+            return ev_hook(com, cmd.callback, cmd.access, cmd.nothread);
         }
     } else {
         assert(cmd.name != NULL);
         char com[strlen(cmd.name) + 9];
         zero(com, strlen(cmd.name) + 9);
         sprintf(com, "cmd.trig.%s", cmd.name);
-        return ev_hook(com, cmd.callback, cmd.access);
+        return ev_hook(com, cmd.callback, cmd.access, cmd.nothread);
     }
 }
 
@@ -93,9 +93,9 @@ void exec_commands(damn *d, packet *p) {
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
         if (strcmp(sp->command, "join") == 0) {
-            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand}, true);
+            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand});
         } else if (strcmp(sp->command, "part") == 0) {
-            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand}, true);
+            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand});
         }
         return;
     }
@@ -128,7 +128,7 @@ void exec_commands(damn *d, packet *p) {
             if (cmdname == NULL)
                 HANDLE_ERR("Unable to allocate command name");
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, true, senderaccess);
+            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
         }
     }
     
@@ -138,6 +138,6 @@ void exec_commands(damn *d, packet *p) {
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
     sprintf(ident, "cmd.notrig.%s", sp->body);
-    ev_trigger_priv(ident, cbdata, true, senderaccess);
-    ev_trigger_priv("cmd.notrig", cbdata, true, senderaccess);
+    ev_trigger_priv(ident, cbdata, senderaccess);
+    ev_trigger_priv("cmd.notrig", cbdata, senderaccess);
 }

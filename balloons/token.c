@@ -18,10 +18,8 @@ static char *extractJSON(char *json, char *key) {
     size_t keylen = strlen(key), idx = 0, jsonlen = strlen(json);
     while(strncmp(json + idx, key, keylen) != 0) {
         idx++;
-        if(idx > jsonlen) {
-            perror(key);
+        if(idx > jsonlen)
             return NULL;
-        }
     }
     char *k = json + idx + keylen + 3;
     char *nl = strchr(k, '"');
