@@ -92,12 +92,12 @@ static void pong(context *ctx) {
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "pong! (%ldms)", (microtime() - microseconds) / 1000);
     api->unhook(pingsendid);
     pingsendid = microseconds = 0;
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping, .nothread = true });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
 } 
 
 static void ping(context *ctx) {
     api->unhook(pinghookid);
-    pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong, .nothread = true });
+    pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong });
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "ping?");
     microseconds = microtime();
 }
