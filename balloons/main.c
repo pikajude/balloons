@@ -7,6 +7,7 @@
 #include "events.h"
 #include "handlers.h"
 #include "setup.h"
+#include "timed.h"
 
 static void getevtname(char *name, packet *p) {
     strcat(name, "pkt.");
@@ -24,6 +25,7 @@ static void getevtname(char *name, packet *p) {
 
 int main (int argc, const char *argv[])
 {
+    signal(SIGCHLD, SIG_IGN); // prevent exiting children from killing process
     runsetup();
     
     char *pkt;
@@ -59,7 +61,7 @@ int main (int argc, const char *argv[])
         p = pkt_parse(pkt);
         
         getevtname(evtid, p);
-        ev_trigger(evtid, (context){ d, p, p->body, NULL });
+        ev_trigger(evtid, (context){ d, p, p->body, NULL }, false);
         exec_commands(d, p);
         
         pkt_free(p);

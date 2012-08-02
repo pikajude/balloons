@@ -15,14 +15,18 @@ static char *response(void) {
 }
 
 static char *extractJSON(char *json, char *key) {
-    size_t keylen = strlen(key);
-    char *value = malloc(512), formatstring[keylen + 128];
-    if (value == NULL)
-        perror("Unable to allocate memory for JSON value");
-    zero(formatstring, keylen + 128);
-    size_t idx = 0, jsonlen = strlen(json);
-    sprintf(formatstring, "\"%s\": \"%%[^\"]\"", key);
-    while (sscanf(idx+++json, formatstring, value) == 0) { if(idx > jsonlen) return NULL; }
+    size_t keylen = strlen(key), idx = 0, jsonlen = strlen(json);
+    while(strncmp(json + idx, key, keylen) != 0) {
+        idx++;
+        if(idx > jsonlen) {
+            perror(key);
+            return NULL;
+        }
+    }
+    char *k = json + idx + keylen + 3;
+    char *nl = strchr(k, '"');
+    char *value = calloc(1, (size_t)nl - (size_t)k + 1);
+    strncpy(value, k, nl - k);
     return value;
 }
 
@@ -72,6 +76,8 @@ static char *curl_request(char *url, arglist *params) {
         exit(EXIT_FAILURE);
     }
     
+    free(full_url);
+    
     curl_free(curl);
     
     curl_global_cleanup();
@@ -83,6 +89,10 @@ static void token_whoami(char *accesstoken) {
     arglist *params = al_make_pair("access_token", accesstoken);
     char *r = curl_request("https://www.deviantart.com/api/draft15/user/whoami", params);
     al_free(params);
+    char *success = extractJSON(r, "status");
+    if (success != NULL && strcmp(success, "error") == 0)
+        HANDLE_ERR("Bad token!");
+    free(success);
     char *uname = extractJSON(r, "username");
     free(r);
     setting_store(BKEY_USERNAME, uname);
@@ -122,6 +132,7 @@ char *token_get_code(void) {
     
     char *resp = response();
     send(clientfd, resp, strlen(resp), 0);
+    free(resp);
     close(clientfd);
     close(sockfd);
     
@@ -141,9 +152,11 @@ char *token_get_access(char *code, int refresh) {
         free(r);
         return NULL;
     } else {
-        setting_store(BKEY_OAUTHRTOKEN, extractJSON(r, "refresh_token"));
+        char *rtok = extractJSON(r, "refresh_token");
+        setting_store(BKEY_OAUTHRTOKEN, rtok);
         char *tok = extractJSON(r, "access_token");
         free(r);
+        free(rtok);
         
         if (!refresh)
             token_whoami(tok);

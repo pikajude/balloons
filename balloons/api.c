@@ -19,6 +19,7 @@ static unsigned long hook_msg(command cmd) {
             return ev_hook(com, cmd.callback, cmd.access);
         }
     } else {
+        assert(cmd.name != NULL);
         char com[strlen(cmd.name) + 9];
         zero(com, strlen(cmd.name) + 9);
         sprintf(com, "cmd.trig.%s", cmd.name);
@@ -52,8 +53,10 @@ void load_libs(void) {
     a->events = ev_get_global();
     
     char *exts = setting_get(BKEY_EXTENSIONS_DIR);
-    if (exts == NULL)
+    if (exts == NULL) {
+        free(a);
         return;
+    }
     
     extdir = opendir(exts);
     if (extdir == NULL) {
@@ -90,9 +93,9 @@ void exec_commands(damn *d, packet *p) {
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
         if (strcmp(sp->command, "join") == 0) {
-            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand});
+            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand}, true);
         } else if (strcmp(sp->command, "part") == 0) {
-            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand});
+            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand}, true);
         }
         return;
     }
@@ -125,7 +128,7 @@ void exec_commands(damn *d, packet *p) {
             if (cmdname == NULL)
                 HANDLE_ERR("Unable to allocate command name");
             snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
-            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
+            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, true, senderaccess);
         }
     }
     
@@ -135,6 +138,6 @@ void exec_commands(damn *d, packet *p) {
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
     sprintf(ident, "cmd.notrig.%s", sp->body);
-    ev_trigger_priv(ident, cbdata, senderaccess);
-    ev_trigger_priv("cmd.notrig", cbdata, senderaccess);
+    ev_trigger_priv(ident, cbdata, true, senderaccess);
+    ev_trigger_priv("cmd.notrig", cbdata, true, senderaccess);
 }

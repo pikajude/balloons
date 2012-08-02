@@ -35,7 +35,9 @@ void settings_load(bool reload) {
     }
     
     char key[KEYLEN] = { 0 }, value[VALLEN] = { 0 };
-    FILE *set = fopen(settings_filename(), "a+");
+    char *fname = settings_filename();
+    FILE *set = fopen(fname, "a+");
+    free(fname);
     if (set == NULL) {
         if (errno == ENOENT) {
             if(mkdir(settings_dirname(), 0777) < 0) {
@@ -70,7 +72,9 @@ void setting_store(char *key, char *value) {
         current_settings = al_make_pair(key, value);
     else
         al_set(current_settings, key, value);
-    FILE *set = fopen(settings_filename(), "w");
+    char *fname = settings_filename();
+    FILE *set = fopen(fname, "w");
+    free(fname);
     settings *s = current_settings;
     while (s != NULL) {
         fprintf(set, "%.64s: %.512s\n", s->key, s->value);

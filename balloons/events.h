@@ -31,7 +31,7 @@ typedef struct _events events;
 events *ev_get_global(void);
 unsigned long ev_hook(char*, damn_callback, unsigned char);
 void ev_unhook(unsigned long);
-void ev_trigger_priv(char*, context, unsigned char);
-void ev_trigger(char*, context);
+void ev_trigger_priv(char*, context, bool, unsigned char);
+void ev_trigger(char*, context, bool);
 
 #define ev_hookany(a,b) ev_hook((a),(b),0)

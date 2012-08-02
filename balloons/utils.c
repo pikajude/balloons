@@ -23,25 +23,25 @@ void quicksort(void **arr, int beg, int end, int comparator(const void *, const 
 }
 
 unsigned char access_get(char *uname) {
-    unsigned char access;
+    unsigned int _access;
     char *setting_name = calloc(1, strlen(uname) + 8);
     strcpy(setting_name, "access.");
     strcat(setting_name, uname);
     
     char *setting = setting_get(setting_name);
     if (setting == NULL)
-        access = 0;
+        _access = 0;
     else
-        sscanf(setting, "%d", &access);
-    return access;
+        sscanf(setting, "%d", &_access);
+    return (unsigned char)_access;
 }
 
-void access_store(char *uname, unsigned char access) {
+void access_store(char *uname, unsigned char _access) {
     char *acbuf = calloc(1, 3);
     char *setting_name = calloc(1, strlen(uname) + 8);
     strcpy(setting_name, "access.");
     strcat(setting_name, uname);
-    sprintf(acbuf, "%d", access);
+    sprintf(acbuf, "%d", _access);
     setting_store(setting_name, acbuf);
 }
 

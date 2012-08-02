@@ -44,6 +44,7 @@ char *damn_read(damn *d) {
     int loc = 0;
     for(;;) {
         if(recv(d->_sockd, &buf, 1, 0) <= 0) {
+            free(res);
             damn_disconnect(d);
             return NULL;
         } else if(buf == 0)

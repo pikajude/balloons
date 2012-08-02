@@ -77,10 +77,14 @@ static void setup_get_extpath(void) {
             exit(EXIT_FAILURE);
         }
         setting_store(BKEY_EXTENSIONS_DIR, extname);
+        free(extname);
         return;
     }
     
+    char *nl = strrchr(path, '\n');
+    nl[0] = '\0';
     printf("You chose %s as the plugins directory. Is that okay? (y/n) ", path);
+    free(extname);
     if (getfirstchar() != 'y')
         return setup_get_extpath();
     else {
