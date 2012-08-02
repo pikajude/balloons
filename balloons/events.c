@@ -69,8 +69,13 @@ void ev_trigger_priv(char *evname, context cbdata, bool threaded, unsigned char 
     do {
         if (cur->name == NULL)
             return;
-        if (strcmp(cur->name, evname) == 0 && cur->access <= level)
-            cur->d(cbdata);
+        if (strcmp(cur->name, evname) == 0 && cur->access <= level) {
+            if (threaded) {
+                dispatch(cur->name, 10, cur->d, &cbdata);
+            } else {
+                cur->d(&cbdata);
+            }
+        }
     } while ((cur = cur->next) != NULL);
 }
 

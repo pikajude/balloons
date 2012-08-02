@@ -6,17 +6,20 @@ struct _damn;
 
 #include "damn.h"
 #include "packet.h"
+#include "timed.h"
 
 struct _events;
 
-typedef struct {
+struct _context {
     struct _damn *damn;
     packet *pkt;
     char *msg;
     char *sender;
-} context;
+};
 
-typedef void (*damn_callback)(context);
+typedef struct _context context;
+
+typedef void (*damn_callback)(context *);
 
 struct _events {
     unsigned long id;

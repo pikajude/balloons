@@ -1,4 +1,5 @@
 #include "timed.h"
+#include "events.h"
 
 void on_complete(void *b) {
     *((bool *)b) = true;
@@ -10,7 +11,7 @@ void thread_with_cleanup(cb *c) {
     pthread_cleanup_pop(1);
 }
 
-void dispatch(unsigned int t, void (*fun)(void *), void *arg) {
+void dispatch(const char *cmd, unsigned int t, void (*fun)(context *), struct _context *arg) {
     if(fork() == 0) {
         pthread_t thread;
         bool f = false;
@@ -22,7 +23,7 @@ void dispatch(unsigned int t, void (*fun)(void *), void *arg) {
         sleep(t);
         pthread_cancel(thread);
         if(!f) {
-            printf("Killed thread %p after %u seconds\n", thread, t);
+            dsendmsg(arg->damn, pkt_roomname(arg->pkt), "Killed command <b>%s</b> (%p) after %u seconds", cmd + 9, thread, t);
         }
         exit(0);
     }

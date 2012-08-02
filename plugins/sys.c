@@ -49,66 +49,66 @@ static int cmp_strint(const void *s1, const void *s2) {
     return 1;
 }
 
-static void about(context ctx) {
+static void about(context *ctx) {
 #ifdef __WIN32__
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on Windows", BVERSION);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on Windows", BVERSION);
 #else
     struct utsname u;
     uname(&u);
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
 #endif
 }
 
-static void memuse(context ctx) {
+static void memuse(context *ctx) {
 #ifdef __APPLE__
     struct task_basic_info info;
     mach_msg_type_number_t size = sizeof info;
     task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "Memory usage in bytes: %lu", info.resident_size);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "Memory usage in bytes: %lu", info.resident_size);
 #endif
 }
 
-static void trigcheck(context ctx) {
+static void trigcheck(context *ctx) {
     char *uname = setting_get(BKEY_USERNAME);
     char *tc = calloc(1, strlen(uname) + 12);
     sprintf(tc, "%s: trigcheck", uname);
-    if (strstr(ctx.msg, tc) != NULL)
-        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: %s (or '%s: ')", ctx.sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
+    if (strstr(ctx->msg, tc) != NULL)
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "%s: %s (or '%s: ')", ctx->sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
     free(tc);
 }
 
-static void botcheck(context ctx) {
+static void botcheck(context *ctx) {
     char *uname = setting_get(BKEY_USERNAME);
     char *bc = calloc(1, strlen(uname) + 11);
     sprintf(bc, "%s: botcheck", uname);
-    if (strstr(ctx.msg, bc) != NULL)
-        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "%s: I'm a bot!", ctx.sender);
+    if (strstr(ctx->msg, bc) != NULL)
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "%s: I'm a bot!", ctx->sender);
     free(bc);
 }
 
-static void ping(context);
+static void ping(context *);
 
-static void pong(context ctx) {
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "pong! (%ldms)", (microtime() - microseconds) / 1000);
+static void pong(context *ctx) {
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "pong! (%ldms)", (microtime() - microseconds) / 1000);
     api->unhook(pingsendid);
     pingsendid = microseconds = 0;
     pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
 } 
 
-static void ping(context ctx) {
+static void ping(context *ctx) {
     api->unhook(pinghookid);
     pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong });
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "ping?");
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "ping?");
     microseconds = microtime();
 }
 
-static void echo(context ctx) {
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), ctx.msg);
+static void echo(context *ctx) {
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), ctx->msg);
 }
 
-static void commands(context ctx) {
+static void commands(context *ctx) {
     size_t idx = 0, fullsize = 24, i = (size_t)-1, j;
-    unsigned char access = access_get(ctx.sender);
+    unsigned char access = access_get(ctx->sender);
     
     events **commands = calloc(1, fullsize * sizeof(char*));
     events *cur = api->events;
@@ -137,29 +137,29 @@ static void commands(context ctx) {
         strcat(msgstr, " ");
     }
     
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), msgstr);
     free(commands);
 }
 
-static void can(context ctx) {
+static void can(context *ctx) {
     char uname[128], cmd[128];
     unsigned char uaccess, caccess;
-    if (sscanf(ctx.msg, "%s use %[^? ]?", uname, cmd) < 2) {
-        dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), "I don't know.");
+    if (sscanf(ctx->msg, "%s use %[^? ]?", uname, cmd) < 2) {
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "I don't know.");
     } else {
         caccess = access_get_cmd(api->events, cmd);
         if (strcmp(uname, "everyone") == 0) {
-            dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), caccess == 0 ? "Yes." : "No.");
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), caccess == 0 ? "Yes." : "No.");
         } else {
             if (strcmp(uname, "I") == 0 || strcmp(uname, "i") == 0)
-                strcpy(uname, ctx.sender);
+                strcpy(uname, ctx->sender);
             uaccess = access_get(uname);
-            dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), uaccess >= caccess ? "Yes." : "No.");
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), uaccess >= caccess ? "Yes." : "No.");
         }
     }
 }
 
-static void laccess(context ctx) {
+static void laccess(context *ctx) {
     size_t fullsize = 24, cur = 0;
     struct access_pair *pairs = calloc(1, fullsize * sizeof(struct access_pair));
     settings *s = settings_all();
@@ -184,7 +184,7 @@ static void laccess(context ctx) {
         strcat(msgstr, pairs[fullsize].level);
         strcat(msgstr, ") ");
     }
-    dsendmsg(ctx.damn, pkt_roomname(ctx.pkt), msgstr);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), msgstr);
     free(pairs);
 }
 

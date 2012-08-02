@@ -8,6 +8,7 @@
 #define BKEY_TRIGGER        "_trigger"
 #define BKEY_EXTENSIONS_DIR "_extdir"
 #define BCMDLEN_MAX         16
+#define CMD_TIMEOUT         10
 
 #define zero(a,b) memset(a,0,b)
 

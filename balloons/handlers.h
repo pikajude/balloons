@@ -9,7 +9,7 @@
 
 void set_damntoken(char*);
 
-#define HANDLER(x) void handler_##x(context cbdata)
+#define HANDLER(x) void handler_##x(context *cbdata)
 
 HANDLER(dAmnServer);
 HANDLER(login);

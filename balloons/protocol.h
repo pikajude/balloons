@@ -4,11 +4,11 @@
 #include <stdarg.h>
 #include "damn.h"
 
-void dhandshake(damn*);
-void dlogin(damn*, char*, char*);
-void djoin(damn*, char*);
-void dpong(damn*);
-void dsendmsgtype(damn*, char*, char*, char*, ...);
+void dhandshake(struct _damn*);
+void dlogin(struct _damn*, char*, char*);
+void djoin(struct _damn*, char*);
+void dpong(struct _damn*);
+void dsendmsgtype(struct _damn*, char*, char*, char*, ...);
 
 #define dsendmsg(d,room,msg,...) dsendmsgtype(d,"msg",room,msg,##__VA_ARGS__)
 #define dsendnpmsg(d,room,msg,...) dsendmsgtype(d,"npmsg",room,msg,##__VA_ARGS__)
