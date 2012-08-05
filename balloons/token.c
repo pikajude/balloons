@@ -145,11 +145,14 @@ char *token_get_access(char *code, int refresh) {
     al_set(params, refresh ? "refresh_token" : "code", code);
     char *r = curl_request("https://www.deviantart.com/oauth2/draft15/token", params);
     al_free(params);
-    if (strcmp("error", extractJSON(r, "status")) == 0) {
+    char *err = extractJSON(r, "status");
+    if (strcmp("error", err) == 0) {
         printf("Error! %s\n", extractJSON(r, "error_description"));
         free(r);
+        free(err);
         return NULL;
     } else {
+        free(err);
         char *rtok = extractJSON(r, "refresh_token");
         setting_store(BKEY_OAUTHRTOKEN, rtok);
         char *tok = extractJSON(r, "access_token");
