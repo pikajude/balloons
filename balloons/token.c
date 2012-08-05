@@ -147,9 +147,11 @@ char *token_get_access(char *code, int refresh) {
     al_free(params);
     char *err = extractJSON(r, "status");
     if (strcmp("error", err) == 0) {
-        printf("Error! %s\n", extractJSON(r, "error_description"));
+        char *desc = extractJSON(r, "error_description");
+        printf("Error! %s\n", desc);
         free(r);
         free(err);
+        free(desc);
         return NULL;
     } else {
         free(err);
