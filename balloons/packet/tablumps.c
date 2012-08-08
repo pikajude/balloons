@@ -9,10 +9,12 @@ static char *simple_lumps[] = {
 };
 
 static lump complex_lumps[] = {
-    { "&acro\t",  "<acronym title='%'>", 1, {1} },
-    { "&/acro\t", "</acronym>", 0, {} },
-    { "&emote\t", "%", 5, {1} },
-    { "&dev\t", ":dev%:", 2, {2} }
+    { "&a\t",     "<a href='%' title='%'>", 2, {1, 2} },
+    { "&acro\t",  "<acronym title='%'>",    1, {1}    },
+    { "&/acro\t", "</acronym>",             0, {}     },
+    { "&abbr\t",  "<abbr title='%'>",       1, {1}    },
+    { "&emote\t", "%",                      5, {1}    },
+    { "&dev\t",   ":dev%:",                 2, {2}    },
 };
 
 static void remove_simple(char *str) {
@@ -78,7 +80,7 @@ static char *declump(char *s, lump l) {
                 idx_s++;
             }
             if(contains(l.groups, i))
-                matchlen += idx_m + 1;
+                matchlen += idx_m;
             fullmatchlen += idx_m + 1;
             idx_s++;
         }
@@ -86,10 +88,11 @@ static char *declump(char *s, lump l) {
     // length of section that will be "found"
     int f_len = (int)strlen(l.find) + (int)fullmatchlen;
     // length of section that will be "replaced"
-    int r_len = (int)strlen(l.repl) - (int)countchr(l.repl, '%') + (int)matchlen - 1;
+    int r_len = (int)strlen(l.repl) - (int)countchr(l.repl, '%') + (int)matchlen;
     int diff = r_len - f_len;
     
-    int *dexes = indexes(l.repl, '%');
+    int *rdexes = indexes(l.repl, '%');
+    int *sdexes = indexes(l.repl, '%');
     int glen = grouplen(&l.groups[0]);
     size_t curmatchlen;
     
@@ -101,13 +104,16 @@ static char *declump(char *s, lump l) {
         }
         if(diff > 0)
             strcpy(news + diff, s);
-        if(dexes[0] != -1) {
-            memcpy(news, l.repl, dexes[0]);
+        if(rdexes[0] != -1) {
+            memcpy(news, l.repl, rdexes[0]);
             for(int j = 0; j < glen; j++) {
                 assert(matches[l.groups[j] - 1] != NULL);
                 curmatchlen = strlen(matches[l.groups[j] - 1]);
-                memcpy(news + dexes[j], matches[l.groups[j] - 1], curmatchlen);
-                memcpy(news + dexes[j] + curmatchlen, l.repl + dexes[j] + 1, dexes[j + 1] - dexes[j] - 1);
+                memcpy(news + sdexes[j], matches[l.groups[j] - 1], curmatchlen);
+                memcpy(news + sdexes[j] + curmatchlen, l.repl + rdexes[j] + 1, rdexes[j + 1] - rdexes[j] - 1);
+                for(int q = 0; q < glen; q++)
+                    sdexes[q] += curmatchlen - 1;
+                printf("");
             }
         }
         if(diff < 0)
@@ -119,7 +125,8 @@ static char *declump(char *s, lump l) {
     for(unsigned char k = 0; k < l.arity * use_matches; k++) {
         free(matches[k]);
     }
-    free(dexes);
+    free(sdexes);
+    free(rdexes);
     return news;
 }
 
