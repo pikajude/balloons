@@ -10,7 +10,9 @@ static char *simple_lumps[] = {
 
 static lump complex_lumps[] = {
     { "&acro\t",  "<acronym title='%'>", 1, {1} },
-    { "&/acro\t", "</acronym>", 0, {} }
+    { "&/acro\t", "</acronym>", 0, {} },
+    { "&emote\t", "%", 5, {1} },
+    { "&dev\t", ":dev%:", 2, {2} }
 };
 
 static void remove_simple(char *str) {
@@ -37,16 +39,17 @@ static inline bool contains(unsigned char h[3], unsigned char n) {
     return h[0] == n || h[1] == n || h[2] == n;
 }
 
-static size_t *indexes(char *s, char c) {
+static int *indexes(char *s, char c) {
     size_t ddx = 0;
-    size_t *dexes = calloc(4, sizeof(size_t));
-    for(size_t i = 0; i < strlen(s); i++) {
+    int *dexes = malloc(4 * sizeof(int));
+    memset(dexes, -1, 4);
+    for(int i = 0; i < (int)strlen(s); i++) {
         if(s[i] == c) {
             dexes[ddx] = i;
             ddx++;
         }
     }
-    dexes[ddx] = strlen(s);
+    dexes[ddx] = (int)strlen(s);
     return dexes;
 }
 
@@ -61,8 +64,8 @@ static char *declump(char *s, lump l) {
     char *news;
     assert(strncmp(s, l.find, strlen(l.find)) == 0);
     bool use_matches = false;
-    char *matches[7];
-    long idx_s, idx_m, matchlen = 0;
+    char *matches[7] = {};
+    long idx_s, idx_m = 0, matchlen = 0, fullmatchlen = 0;
     if(l.arity > 0) {
         idx_s = strchr(s, '\t') - s + 1;
         for(unsigned char i = 1; i <= l.arity; i++) {
@@ -76,30 +79,39 @@ static char *declump(char *s, lump l) {
             }
             if(contains(l.groups, i))
                 matchlen += idx_m + 1;
+            fullmatchlen += idx_m + 1;
             idx_s++;
         }
     }
     // length of section that will be "found"
-    size_t f_len = strlen(l.find) + (unsigned long)matchlen;
+    int f_len = (int)strlen(l.find) + (int)fullmatchlen;
     // length of section that will be "replaced"
-    size_t r_len = strlen(l.repl) - countchr(l.repl, '%') + (unsigned long)matchlen - 1;
-    size_t diff = r_len - f_len;
+    int r_len = (int)strlen(l.repl) - (int)countchr(l.repl, '%') + (int)matchlen - 1;
+    int diff = r_len - f_len;
     
-    size_t *dexes = indexes(l.repl, '%');
+    int *dexes = indexes(l.repl, '%');
     int glen = grouplen(&l.groups[0]);
     size_t curmatchlen;
     
-    if(diff > 0) {
-        news = calloc(1, strlen(s) + diff);
-        strcpy(news + diff, s);
-        if(dexes[0] > 0) {
+    if(diff != 0) {
+        news = calloc(1, (size_t)((int)strlen(s) + diff));
+        if(news == NULL) {
+            printf("news is null\n");
+            exit(0);
+        }
+        if(diff > 0)
+            strcpy(news + diff, s);
+        if(dexes[0] != -1) {
             memcpy(news, l.repl, dexes[0]);
             for(int j = 0; j < glen; j++) {
-                curmatchlen = strlen(matches[l.groups[j + 1]]);
-                memcpy(news + dexes[j], matches[l.groups[j + 1]], curmatchlen);
+                assert(matches[l.groups[j] - 1] != NULL);
+                curmatchlen = strlen(matches[l.groups[j] - 1]);
+                memcpy(news + dexes[j], matches[l.groups[j] - 1], curmatchlen);
                 memcpy(news + dexes[j] + curmatchlen, l.repl + dexes[j] + 1, dexes[j + 1] - dexes[j] - 1);
             }
         }
+        if(diff < 0)
+            strcat(news, s + f_len);
     } else {
         news = malloc(strlen(s));
         strcpy(news, s);

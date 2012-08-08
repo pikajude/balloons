@@ -25,29 +25,28 @@ HANDLER(ping) {
 }
 
 HANDLER(property_members) {
-    logger(blue, "#");
-    logger(blue, pkt_roomname(cbdata->pkt));
+    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
     printf(" Got members.\n");
 }
 
 HANDLER(property_topic) {
-    logger(blue, "#");
-    logger(blue, pkt_roomname(cbdata->pkt));
-    printf(" Topic: %s\n", delump(cbdata->pkt->body));
+    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
+    printf(" Topic: %s\n", cbdata->pkt->body);
 }
 
 HANDLER(property_title) {
-    logger(blue, "#");
-    logger(blue, pkt_roomname(cbdata->pkt));
-    printf(" Title: %s\n", delump(cbdata->pkt->body));
+    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
+    printf(" Title: %s\n", cbdata->pkt->body);
 }
 
 HANDLER(property_privclasses) {
-    logger(blue, "#");
-    logger(blue, pkt_roomname(cbdata->pkt));
+    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
     printf(" Got privclasses.\n");
 }
 
 HANDLER(recv_msg) {
-    printf("%s\n", cbdata->pkt->body);
+    logger(blue, "#%s ", pkt_roomname(cbdata->pkt));
+    packet *s = pkt_subpacket(cbdata->pkt);
+    logger(green, "<%s> ", pkt_from(s));
+    printf("%s\n", s->body);
 }

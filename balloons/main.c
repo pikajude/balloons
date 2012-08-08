@@ -16,6 +16,7 @@ static void getevtname(char *name, packet *p) {
         strcat(name, ".");
         strcat(name, pkt_getarg(p, "p"));
     } else if (strcmp(p->command, "recv") == 0) {
+        assert(p->body != NULL);
         size_t loc = 9, strloc = 0;
         strcat(name, ".");
         while (p->body[strloc] != ' ')
@@ -60,6 +61,8 @@ int main (int argc, const char *argv[])
             pkt = damn_read(d);
         }
         p = pkt_parse(pkt);
+        if(p->body != NULL)
+            p->body = delump(p->body);
         
         getevtname(evtid, p);
         ev_trigger(evtid, (context){ d, p, p->body, NULL });

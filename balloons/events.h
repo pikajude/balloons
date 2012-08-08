@@ -38,4 +38,4 @@ void ev_unhook(unsigned long);
 void ev_trigger_priv(char*, context, unsigned char);
 void ev_trigger(char*, context);
 
-#define ev_hookany(a,b) ev_hook((a),(b),0,true)
+#define ev_hookany(a,b) ev_hook((a),(b),0,false)
