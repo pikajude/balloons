@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "api.h"
-#include "damn/damn.h"
-#include "packet/packet.h"
+#include "damn.h"
+#include "packet.h"
 #include "token.h"
-#include "damn/protocol.h"
+#include "protocol.h"
 #include "events.h"
-#include "damn/handlers.h"
+#include "handlers.h"
 #include "setup.h"
 #include "timed.h"
 
