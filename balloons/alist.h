@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../defs.h"
+#include "defs.h"
 
 struct _arglist {
     char *key;

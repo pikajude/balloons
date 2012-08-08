@@ -96,6 +96,27 @@ static void setup_get_extpath(void) {
     }
 }
 
+static void setup_get_autojoin(void) {
+    char *autojoin = calloc(1, 1);
+    size_t size = 0;
+    printf("Enter the default chatrooms for the bot to join, separated by spaces ONLY, '#' character optional: ");
+    getline(&autojoin, &size, stdin);
+    if(*autojoin == '\n')
+        return setup_get_autojoin();
+    
+    char *nl = strrchr(autojoin, '\n');
+    nl[0] = '\0';
+    
+    printf("You chose '%s' for the autojoin list. Is that okay? (y/n) ", autojoin);
+    if(getfirstchar() != 'y') {
+        free(autojoin);
+        return setup_get_autojoin();
+    } else {
+        setting_store(BKEY_AUTOJOIN, autojoin);
+        free(autojoin);
+    }
+}
+
 void runsetup(void) {
     if (setting_get(BKEY_OAUTHCODE) != NULL)
         return;
@@ -103,5 +124,6 @@ void runsetup(void) {
     setup_get_token();
     setup_get_trigger();
     setup_get_extpath();
+    setup_get_autojoin();
     puts("All set!");
 }

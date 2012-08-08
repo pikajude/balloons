@@ -4,8 +4,8 @@
 
 struct _damn;
 
-#include "damn/damn.h"
-#include "packet/packet.h"
+#include "damn.h"
+#include "packet.h"
 #include "timed.h"
 
 struct _events;

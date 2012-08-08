@@ -1,6 +1,6 @@
 #pragma once
 
-#include "packet/alist.h"
+#include "alist.h"
 #include "settings.h"
 #include "events.h"
 

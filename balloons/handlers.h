@@ -2,12 +2,12 @@
 
 #include <stdio.h>
 #include "damn.h"
-#include "../settings.h"
-#include "../packet/packet.h"
+#include "settings.h"
+#include "packet.h"
 #include "protocol.h"
-#include "../events.h"
-#include "../logger.h"
-#include "../packet/tablumps.h"
+#include "events.h"
+#include "logger.h"
+#include "tablumps.h"
 
 void set_damntoken(char*);
 

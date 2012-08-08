@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include "packet/alist.h"
+#include "alist.h"
 #include "defs.h"
 
 #define KEYLEN 65
