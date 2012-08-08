@@ -117,6 +117,31 @@ static void setup_get_autojoin(void) {
     }
 }
 
+static void setup_get_owner(void) {
+    char *owner = calloc(1, 1);
+    size_t size = 0;
+    printf("Enter the username of the bot's owner (probably yours): ");
+    getline(&owner, &size, stdin);
+    if(*owner == '\n')
+        return setup_get_owner();
+    
+    char *nl = strrchr(owner, '\n');
+    nl[0] = '\0';
+    
+    printf("You chose '%s' as the bot's owner. Is that okay? (y/n) ", owner);
+    if(getfirstchar() != 'y') {
+        free(owner);
+        return setup_get_owner();
+    } else {
+        char *sname = calloc(1, 8 + strlen(owner));
+        strcpy(sname, "access.");
+        strcat(sname, owner);
+        setting_store(sname, "254");
+        free(owner);
+        free(sname);
+    }
+}
+
 void runsetup(void) {
     if (setting_get(BKEY_OAUTHCODE) != NULL)
         return;
@@ -125,5 +150,6 @@ void runsetup(void) {
     setup_get_trigger();
     setup_get_extpath();
     setup_get_autojoin();
+    setup_get_owner();
     puts("All set!");
 }
