@@ -5,23 +5,27 @@ static char *simple_lumps[] = {
     "code", "br", "ul", "ol", "li", "p",
     "/b", "/i", "/u", "/s", "/sup", "/sub",
     "/code", "/ul", "/ol", "/li", "/p",
-    "bcode", "/bcode", "/abbr", "/a"
+    "bcode", "/bcode", "/abbr", "/a", "/iframe"
 };
 
 static lump complex_lumps[] = {
-    { "&a\t",     "<a href='%' title='%'>", 2, {1, 2} },
-    { "&acro\t",  "<acronym title='%'>",    1, {1}    },
-    { "&/acro\t", "</acronym>",             0, {}     },
-    { "&abbr\t",  "<abbr title='%'>",       1, {1}    },
-    { "&emote\t", "%",                      5, {1}    },
-    { "&dev\t",   ":dev%:",                 2, {2}    },
-    { "&link\t",  "% (%)",                  3, {1, 2} },
+    { "&a\t",      "<a href='%' title='%'>",                  2, {1, 2}    },
+    { "&acro\t",   "<acronym title='%'>",                     1, {1}       },
+    { "&/acro\t",  "</acronym>",                              0, {}        },
+    { "&abbr\t",   "<abbr title='%'>",                        1, {1}       },
+    { "&emote\t",  "%",                                       5, {1}       },
+    { "&dev\t",    ":dev%:",                                  2, {2}       },
+    { "&link\t",   "% (%)",                                   3, {1, 2}    },
+    { "&avatar\t", ":icon%:",                                 2, {1}       },
+    { "&thumb\t",  ":thumb%:",                                7, {1}       },
+    { "&img\t",    "<img src='%' alt='%' title='%' />",       3, {1, 2, 3} },
+    { "&iframe\t", "<iframe src='%' width='%' height='%' />", 4, {1, 2, 3} },
 };
 
 static void remove_simple(char *str) {
-    char match[9], *b;
+    char match[10], *b;
     for(unsigned long i = 0; i < sizeof(simple_lumps)/sizeof(char *); i++) {
-        memset(match, 9, 0);
+        memset(match, 10, 0);
         sprintf(match, "&%s\t", simple_lumps[i]);
         while((b = strstr(str, match)) != NULL) {
             b[0] = '<';
