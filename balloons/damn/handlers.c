@@ -25,31 +25,27 @@ HANDLER(ping) {
 }
 
 HANDLER(property_members) {
-    putchar('[');
     logger(blue, "#");
     logger(blue, pkt_roomname(cbdata->pkt));
-    printf("] Got members.\n");
+    printf(" Got members.\n");
 }
 
 HANDLER(property_topic) {
-    putchar('[');
     logger(blue, "#");
     logger(blue, pkt_roomname(cbdata->pkt));
-    printf("] Topic: %s\n", delump(cbdata->pkt->body));
+    printf(" Topic: %s\n", delump(cbdata->pkt->body));
 }
 
 HANDLER(property_title) {
-    putchar('[');
     logger(blue, "#");
     logger(blue, pkt_roomname(cbdata->pkt));
-    printf("] Title: %s\n", delump(cbdata->pkt->body));
+    printf(" Title: %s\n", delump(cbdata->pkt->body));
 }
 
 HANDLER(property_privclasses) {
-    putchar('[');
     logger(blue, "#");
     logger(blue, pkt_roomname(cbdata->pkt));
-    printf("] Got privclasses.\n");
+    printf(" Got privclasses.\n");
 }
 
 HANDLER(recv_msg) {
