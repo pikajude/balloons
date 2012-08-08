@@ -15,6 +15,7 @@ static lump complex_lumps[] = {
     { "&abbr\t",  "<abbr title='%'>",       1, {1}    },
     { "&emote\t", "%",                      5, {1}    },
     { "&dev\t",   ":dev%:",                 2, {2}    },
+    { "&link\t",  "% (%)",                  3, {1, 2} },
 };
 
 static void remove_simple(char *str) {
@@ -83,6 +84,12 @@ static char *declump(char *s, lump l) {
                 matchlen += idx_m;
             fullmatchlen += idx_m + 1;
             idx_s++;
+            // fix for variadic arguments in link
+            if(i == 2 && strncmp(matches[1], "&", 2) == 0 && strncmp(s, "&link\t", 6) == 0) {
+                strcpy(matches[1], "[link]");
+                matchlen += 5;
+                break;
+            }
         }
     }
     // length of section that will be "found"
@@ -96,32 +103,23 @@ static char *declump(char *s, lump l) {
     int glen = grouplen(&l.groups[0]);
     size_t curmatchlen;
     
-    if(diff != 0) {
-        news = calloc(1, (size_t)((int)strlen(s) + diff));
-        if(news == NULL) {
-            printf("news is null\n");
-            exit(0);
+    news = calloc(1, (size_t)((int)strlen(s) + diff + 1));
+    if(diff > 0)
+        strcpy(news + diff, s);
+    if(rdexes[0] != -1) {
+        memcpy(news, l.repl, rdexes[0]);
+        for(int j = 0; j < glen; j++) {
+            assert(matches[l.groups[j] - 1] != NULL);
+            curmatchlen = strlen(matches[l.groups[j] - 1]);
+            memcpy(news + sdexes[j], matches[l.groups[j] - 1], curmatchlen);
+            memcpy(news + sdexes[j] + curmatchlen, l.repl + rdexes[j] + 1, rdexes[j + 1] - rdexes[j] - 1);
+            for(int q = 0; q < glen; q++)
+                sdexes[q] += curmatchlen - 1;
         }
-        if(diff > 0)
-            strcpy(news + diff, s);
-        if(rdexes[0] != -1) {
-            memcpy(news, l.repl, rdexes[0]);
-            for(int j = 0; j < glen; j++) {
-                assert(matches[l.groups[j] - 1] != NULL);
-                curmatchlen = strlen(matches[l.groups[j] - 1]);
-                memcpy(news + sdexes[j], matches[l.groups[j] - 1], curmatchlen);
-                memcpy(news + sdexes[j] + curmatchlen, l.repl + rdexes[j] + 1, rdexes[j + 1] - rdexes[j] - 1);
-                for(int q = 0; q < glen; q++)
-                    sdexes[q] += curmatchlen - 1;
-                printf("");
-            }
-        }
-        if(diff < 0)
-            strcat(news, s + f_len);
-    } else {
-        news = malloc(strlen(s));
-        strcpy(news, s);
     }
+    if(diff < 0)
+        strcat(news, s + f_len);
+    news[(int)strlen(s) + diff + 1] = 0;
     for(unsigned char k = 0; k < l.arity * use_matches; k++) {
         free(matches[k]);
     }
