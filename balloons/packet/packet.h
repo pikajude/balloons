@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "alist.h"
-#include "defs.h"
+#include "../defs.h"
 
 typedef struct {
     char *command;

@@ -15,8 +15,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include "defs.h"
-#include "events.h"
+#include "../defs.h"
+#include "../events.h"
 
 struct _damn {
     int _sockd;

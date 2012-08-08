@@ -152,7 +152,7 @@ char *token_get_access(char *code, int refresh) {
         free(r);
         free(err);
         free(desc);
-        return NULL;
+        exit(0);
     } else {
         free(err);
         char *rtok = extractJSON(r, "refresh_token");

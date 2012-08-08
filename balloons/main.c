@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "api.h"
-#include "damn.h"
-#include "packet.h"
+#include "damn/damn.h"
+#include "packet/packet.h"
 #include "token.h"
-#include "protocol.h"
+#include "damn/protocol.h"
 #include "events.h"
-#include "handlers.h"
+#include "damn/handlers.h"
 #include "setup.h"
 #include "timed.h"
 
@@ -42,6 +42,7 @@ int main (int argc, const char *argv[])
     ev_hookany("pkt.property.topic", &handler_property_topic);
     ev_hookany("pkt.property.title", &handler_property_title);
     ev_hookany("pkt.property.privclasses", &handler_property_privclasses);
+    ev_hookany("pkt.recv.msg", &handler_recv_msg);
 
     char *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));

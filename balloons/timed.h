@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include "protocol.h"
+#include "damn/protocol.h"
 
 struct _context;
 

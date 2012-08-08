@@ -3,8 +3,8 @@
 #include <dlfcn.h>
 #include <dirent.h>
 #include "events.h"
-#include "damn.h"
-#include "packet.h"
+#include "damn/damn.h"
+#include "packet/packet.h"
 #include "settings.h"
 #include "utils.h"
 

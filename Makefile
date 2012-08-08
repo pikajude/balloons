@@ -11,12 +11,13 @@ PREFIX=/usr/local
 SRCEXT=c
 SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS=$(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+DIR=$(mkdir -p build/damn build/packet)
  
 $(TARGET): $(OBJECTS)
 	$(CC) $^ -o $(TARGET) $(INCLUDE) $(CFLAGS) $(LDFLAGS) $(LDLIBS)
  
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	mkdir -p $(BUILDDIR)
+	mkdir -p build/damn build/packet
 	$(CC) $(CFLAGS) -c -o $@ $<
  
 clean:
