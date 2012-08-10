@@ -94,6 +94,7 @@ void load_libs(void) {
         }
     }
     
+    free(asciidir);
     closedir(extdir);
 }
 
