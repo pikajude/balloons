@@ -1,8 +1,8 @@
 #include "handlers.h"
 
-static char *dtk;
+static wchar_t *dtk;
 
-void set_damntoken(char *d) {
+void set_damntoken(wchar_t *d) {
     dtk = d;
 }
 
@@ -12,9 +12,9 @@ HANDLER(dAmnServer) {
 }
 
 HANDLER(login) {
-    if (strcmp(pkt_getarg(cbdata->pkt, "e"), "ok") == 0) {
-        printf("Logged in as %s.\n", cbdata->pkt->subcommand);
-        djoin(cbdata->damn, "DevelopingDevelopers");
+    if (wcscmp(pkt_getarg(cbdata->pkt, L"e"), L"ok") == 0) {
+        wprintf(L"Logged in as %ls.\n", cbdata->pkt->subcommand);
+        djoin(cbdata->damn, L"DevelopingDevelopers");
     } else {
         printf("Failed to log in, how the fuck did that happen?\n");
     }
@@ -25,28 +25,28 @@ HANDLER(ping) {
 }
 
 HANDLER(property_members) {
-    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
+    logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
     printf(" Got members.\n");
 }
 
 HANDLER(property_topic) {
-    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
-    printf(" Topic: %s\n", cbdata->pkt->body);
+    logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
+    wprintf(L" Topic: %ls\n", cbdata->pkt->body);
 }
 
 HANDLER(property_title) {
-    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
-    printf(" Title: %s\n", cbdata->pkt->body);
+    logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
+    wprintf(L" Title: %ls\n", cbdata->pkt->body);
 }
 
 HANDLER(property_privclasses) {
-    logger(blue, "#%s", pkt_roomname(cbdata->pkt));
+    logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
     printf(" Got privclasses.\n");
 }
 
 HANDLER(recv_msg) {
-    logger(blue, "#%s ", pkt_roomname(cbdata->pkt));
+    logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
     packet *s = pkt_subpacket(cbdata->pkt);
-    logger(green, "<%s> ", pkt_from(s));
-    printf("%s\n", s->body);
+    logger(green, L"<%ls> ", pkt_from(s));
+    wprintf(L"%ls\n", s->body);
 }

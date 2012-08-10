@@ -8,31 +8,34 @@ static const char *get_extension(const char *filename) {
 }
 
 static unsigned long hook_msg(command cmd) {
-    assert(cmd.name == NULL || (cmd.name != NULL && strlen(cmd.name) < BCMDLEN_MAX));
+    size_t len;
+    assert(cmd.name == NULL || (cmd.name != NULL && wcslen(cmd.name) < BCMDLEN_MAX));
     if (!cmd.triggered) {
         if (cmd.name == NULL) {
-            return ev_hook("cmd.notrig", cmd.callback, cmd.access, cmd.async);
+            return ev_hook(L"cmd.notrig", cmd.callback, cmd.access, cmd.async);
         } else {
-            char com[strlen(cmd.name) + 11];
-            zero(com, strlen(cmd.name) + 11);
-            sprintf(com, "cmd.notrig.%s", cmd.name);
+            len = wcslen(cmd.name) + 11;
+            wchar_t com[len];
+            wmemset(com, 0, len);
+            swprintf(com, len, L"cmd.notrig.%ls", cmd.name);
             return ev_hook(com, cmd.callback, cmd.access, cmd.async);
         }
     } else {
         assert(cmd.name != NULL);
-        char com[strlen(cmd.name) + 9];
-        zero(com, strlen(cmd.name) + 9);
-        sprintf(com, "cmd.trig.%s", cmd.name);
+        len = wcslen(cmd.name) + 9;
+        wchar_t com[len];
+        wmemset(com, 0, len);
+        swprintf(com, len, L"cmd.trig.%ls", cmd.name);
         return ev_hook(com, cmd.callback, cmd.access, cmd.async);
     }
 }
 
 static unsigned long hook_join(damn_callback callback) {
-    return ev_hookany("cmd.join", callback);
+    return ev_hookany(L"cmd.join", callback);
 }
 
 static unsigned long hook_part(damn_callback callback) {
-    return ev_hookany("cmd.part", callback);
+    return ev_hookany(L"cmd.part", callback);
 }
 
 void load_libs(void) {
@@ -41,9 +44,10 @@ void load_libs(void) {
     void *lib;
     initfun initializer;
     const char *ext;
-    char path[512] = { 0 };
+    wchar_t path[512] = { 0 };
+    char *asciipath;
     
-    _api *a = malloc(sizeof *a);
+    _api *a = malloc(sizeof(_api));
     if (a == NULL)
         HANDLE_ERR("Unable to allocate memory for _api");
     a->hook_msg = hook_msg;
@@ -52,32 +56,39 @@ void load_libs(void) {
     a->unhook = ev_unhook;
     a->events = ev_get_global();
     
-    char *exts = setting_get(BKEY_EXTENSIONS_DIR);
+    wchar_t *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL) {
         free(a);
         return;
     }
     
-    extdir = opendir(exts);
+    char *asciidir = calloc(1, wcslen(exts) * 4);
+    wcstombs(asciidir, exts, wcslen(exts) * 4);
+    
+    extdir = opendir(asciidir);
     if (extdir == NULL) {
         perror("Couldn't open extension directory");
         exit(EXIT_FAILURE);
         return;
     }
+    free(asciidir);
     
     while ((entry = readdir(extdir))) {
         ext = get_extension(entry->d_name);
         if (strcmp(ext, "so") == 0) {
-            zero(path, 512);
-            snprintf(path, 511, "%s/%s", exts, entry->d_name);
-            lib = dlopen(path, RTLD_NOW);
+            wmemset(path, 0, 512);
+            swprintf(path, 511, L"%ls/%s", entry->d_name);
+            asciipath = calloc(1, 1022);
+            wcstombs(asciipath, path, 1022);
+            lib = dlopen(asciipath, RTLD_NOW);
+            free(asciipath);
             if (lib == NULL) {
-                printf("Unable to read %s, invalid library\n", path);
+                wprintf(L"Unable to read %ls, invalid library\n", path);
                 continue;
             }
             initializer = (initfun)dlsym(lib, BINIT_FUNCTION);
             if (initializer == NULL) {
-                printf("Symbol %s not found in %s, might want to fix that.\n", BINIT_FUNCTION, path);
+                wprintf(L"Symbol %s not found in %ls, might want to fix that.\n", BINIT_FUNCTION, path);
                 continue;
             }
             initializer(a);
@@ -88,56 +99,56 @@ void load_libs(void) {
 }
 
 void exec_commands(damn *d, packet *p) {
-    if (strcmp(p->command, "recv") != 0) return;
+    if (wcscmp(p->command, L"recv") != 0) return;
     
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
-        if (strcmp(sp->command, "join") == 0) {
-            ev_trigger("cmd.join", (context){d, p, NULL, sp->subcommand});
-        } else if (strcmp(sp->command, "part") == 0) {
-            ev_trigger("cmd.part", (context){d, p, NULL, sp->subcommand});
+        if (wcscmp(sp->command, L"join") == 0) {
+            ev_trigger(L"cmd.join", (context){d, p, NULL, (wchar_t *)sp->subcommand});
+        } else if (wcscmp(sp->command, L"part") == 0) {
+            ev_trigger(L"cmd.part", (context){d, p, NULL, (wchar_t *)sp->subcommand});
         }
         return;
     }
     
     bool triggered = 0;
-    char *bod;
+    wchar_t *bod;
     size_t len = 0;
-    char *cmdname;
-    char *uname = setting_get(BKEY_USERNAME);
-    size_t uname_len = strlen(uname);
-    char *trigger = setting_get(BKEY_TRIGGER);
+    wchar_t *cmdname;
+    wchar_t *uname = setting_get(BKEY_USERNAME);
+    size_t uname_len = wcslen(uname);
+    wchar_t *trigger = setting_get(BKEY_TRIGGER);
     
-    if (strncmp(trigger, sp->body, strlen(trigger)) == 0) {
+    if (wmemcmp(trigger, sp->body, wcslen(trigger)) == 0) {
         triggered = true;
-        bod = sp->body + strlen(trigger);
-    } else if (strncmp(uname, sp->body, uname_len) == 0 &&
+        bod = sp->body + wcslen(trigger);
+    } else if (wmemcmp(uname, sp->body, uname_len) == 0 &&
                sp->body[uname_len] == ':' &&
                sp->body[uname_len + 1] == ' ') {
         triggered = true;
         bod = sp->body + uname_len + 2;
     }
     
-    char *sender = pkt_getarg(sp, "from");
+    wchar_t *sender = pkt_getarg(sp, L"from");
     unsigned char senderaccess = sender == NULL ? 0 : access_get(sender);
     
     if (triggered) {
         while (bod[len++] > 32);
         if (len > 1) {
-            cmdname = calloc(1, len + 9);
+            cmdname = calloc(1, sizeof(wchar_t) * (len + 9));
             if (cmdname == NULL)
                 HANDLE_ERR("Unable to allocate command name");
-            snprintf(cmdname, len + 9, "cmd.trig.%s", bod);
+            swprintf(cmdname, len + 9, L"cmd.trig.%ls", bod);
             ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
         }
     }
     
     context cbdata = { d, p, sp->body, sender };
     
-    char *ident = calloc(1, strlen(sp->body) + 11);
+    wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 11));
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
-    sprintf(ident, "cmd.notrig.%s", sp->body);
+    swprintf(ident, wcslen(sp->body) + 11, L"cmd.notrig.%ls", sp->body);
     ev_trigger_priv(ident, cbdata, senderaccess);
-    ev_trigger_priv("cmd.notrig", cbdata, senderaccess);
+    ev_trigger_priv(L"cmd.notrig", cbdata, senderaccess);
 }

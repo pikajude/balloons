@@ -13,7 +13,7 @@ damn *damn_make(void) {
 
 bool damn_connect(damn *d) {
     struct addrinfo addr, *res;
-    zero(&addr, sizeof addr);
+    memset(&addr, 0, sizeof(addr));
     addr.ai_family = AF_INET;
     addr.ai_socktype = SOCK_STREAM;
     getaddrinfo("chat.deviantart.com", "3900", &addr, &res);

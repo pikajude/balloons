@@ -1,7 +1,12 @@
 #include "setup.h"
 
 static void nuke_settings(void) {
-    fclose(fopen(settings_filename(), "w"));
+    wchar_t *fname = settings_filename();
+    char *afname = calloc(1, wcslen(fname) * 2);
+    wcstombs(afname, fname, wcslen(fname) * 2);
+    fclose(fopen(afname, "w"));
+    free(fname);
+    free(afname);
     settings_load(true);
 }
 
@@ -25,7 +30,7 @@ static int getfirstchar(void) {
 
 static void setup_get_token(void) {
     token_get_access_all();
-    printf("You authorized %s. Is that the right account? (y/n) ", setting_get(BKEY_USERNAME));
+    wprintf(L"You authorized %ls. Is that the right account? (y/n) ", setting_get(BKEY_USERNAME));
     if (getfirstchar() != 'y') {
         nuke_settings();
         return setup_get_token();
@@ -33,23 +38,24 @@ static void setup_get_token(void) {
 }
 
 static void setup_get_trigger(void) {
-    char *trigger = calloc(1, strlen(default_trigger) + 1);
+    wchar_t *trigger = calloc(1, sizeof(wchar_t) * (wcslen(default_trigger) + 1));
+    char *holder = calloc(1, 1);
     if (trigger == NULL)
         HANDLE_ERR("Unable to allocate trigger space");
-    strcpy(trigger, default_trigger);
+    wcscpy(trigger, default_trigger);
     size_t size = 1;
-    printf("Enter a trigger for the bot [%s]: ", default_trigger);
-    getline(&trigger, &size, stdin);
-    for (size_t i = 0; i < size; i++)
-        if (trigger[i] == '\n') {
-            trigger[i] = '\0';
-            break;
-        }
-    if (strlen(trigger) == 0) {
+    wprintf(L"Enter a trigger for the bot [%ls]: ", default_trigger);
+    getline(&holder, &size, stdin);
+    mbstowcs(trigger, holder, strlen(holder));
+    
+    wchar_t *nl = wcsrchr(trigger, '\n');
+    nl[0] = 0;
+    
+    if (wcslen(trigger) == 0) {
         setting_store(BKEY_TRIGGER, default_trigger);
         return;
     }
-    printf("You chose %s for the trigger. Is that okay? (y/n) ", trigger);
+    wprintf(L"You chose %ls for the trigger. Is that okay? (y/n) ", trigger);
     if (getfirstchar() != 'y')
         return setup_get_trigger();
     else
@@ -57,38 +63,44 @@ static void setup_get_trigger(void) {
 }
 
 static void setup_get_extpath(void) {
-    char *path = calloc(1, 1);
-    if (path == NULL)
-        HANDLE_ERR("Unable to allocate space for path");
+    char *holder = malloc(1);
     size_t size = 0;
-    char *curpath = settings_dirname();
-    char *extname = calloc(1, strlen(curpath) + 9);
+    wchar_t *curpath = settings_dirname();
+    wchar_t *extname = calloc(1, sizeof(wchar_t) * (wcslen(curpath) + 9));
     if (extname == NULL)
         HANDLE_ERR("Unable to allocate space for extensions path");
-    strcat(extname, curpath);
-    strcat(extname, "/plugins");
-    printf("Enter the (full!) path to the directory where plugins will be stored [%s]: ", extname);
-    getline(&path, &size, stdin);
+    wcscat(extname, curpath);
+    wcscat(extname, L"/plugins");
+    wprintf(L"Enter the (full!) path to the directory where plugins will be stored [%ls]: ", extname);
+    getline(&holder, &size, stdin);
     
-    if (*path == '\n') {
-        if (mkdir(extname, 0755) < 0) {
+    if (*holder == '\n') {
+        char *aextname = calloc(1, wcslen(extname) * 2);
+        wcstombs(aextname, extname, wcslen(extname) * 2);
+        if (mkdir(aextname, 0755) < 0) {
             perror("Couldn't create the plugin directory.");
             nuke_settings();
             exit(EXIT_FAILURE);
         }
         setting_store(BKEY_EXTENSIONS_DIR, extname);
         free(extname);
+        free(aextname);
         return;
     }
     
-    char *nl = strrchr(path, '\n');
+    char *nl = strrchr(holder, '\n');
     nl[0] = '\0';
-    printf("You chose %s as the plugins directory. Is that okay? (y/n) ", path);
+    
+    wchar_t *path = malloc(sizeof(wchar_t) * (strlen(holder) + 1));
+    mbstowcs(path, holder, strlen(holder));
+    
+    printf("You chose %s as the plugins directory. Is that okay? (y/n) ", holder);
     free(extname);
-    if (getfirstchar() != 'y')
+    if (getfirstchar() != 'y') {
+        free(path);
         return setup_get_extpath();
-    else {
-        if (mkdir(path, 0755) < 0) {
+    } else {
+        if (mkdir(holder, 0755) < 0) {
             perror("Couldn't create the plugin directory");
             printf("Assuming that means it already exists. Continuing.\n");
         }
@@ -97,23 +109,26 @@ static void setup_get_extpath(void) {
 }
 
 static void setup_get_autojoin(void) {
-    char *autojoin = calloc(1, 1);
+    wchar_t *autojoin;
+    char *holder = malloc(1);
     size_t size = 0;
     printf("Enter the default chatrooms for the bot to join, separated by spaces ONLY, '#' character optional: ");
-    getline(&autojoin, &size, stdin);
-    if(*autojoin == '\n')
+    getline(&holder, &size, stdin);
+    if(*holder == '\n')
         return setup_get_autojoin();
     
-    char *nl = strrchr(autojoin, '\n');
+    char *nl = strrchr(holder, '\n');
     nl[0] = '\0';
     
-    printf("You chose '%s' for the autojoin list. Is that okay? (y/n) ", autojoin);
+    printf("You chose '%s' for the autojoin list. Is that okay? (y/n) ", holder);
     if(getfirstchar() != 'y') {
-        free(autojoin);
+        free(holder);
         return setup_get_autojoin();
     } else {
+        autojoin = calloc(1, sizeof(wchar_t) * (strlen(holder) + 1));
+        mbstowcs(autojoin, holder, strlen(holder));
         setting_store(BKEY_AUTOJOIN, autojoin);
-        free(autojoin);
+        free(holder);
     }
 }
 
@@ -133,10 +148,9 @@ static void setup_get_owner(void) {
         free(owner);
         return setup_get_owner();
     } else {
-        char *sname = calloc(1, 8 + strlen(owner));
-        strcpy(sname, "access.");
-        strcat(sname, owner);
-        setting_store(sname, "254");
+        wchar_t *sname = calloc(1, sizeof(wchar_t) * (8 + strlen(owner)));
+        swprintf(sname, 8 + strlen(owner), L"access.%s", owner);
+        setting_store((wchar_t *)sname, L"254");
         free(owner);
         free(sname);
     }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <wchar.h>
 
 enum _color {
     white   = 0,
@@ -24,6 +25,6 @@ enum _color {
 
 typedef enum _color color;
 
-void logger(color c, const char *msg, ...);
+void logger(color c, const wchar_t *msg, ...);
 
 #define log_(x, ...) logger(white, (x), ##__VA_ARGS__)

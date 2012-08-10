@@ -8,19 +8,20 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <wchar.h>
 #include "alist.h"
 #include "defs.h"
 
 #define KEYLEN 65
 #define VALLEN 513
-#define ARGFMT "%64[^:]: %512[^\n]\n"
+#define ARGFMT L"%64l[^:]: %512l[^\n]\n"
 
 typedef arglist settings;
 
 settings *settings_all(void);
-char *settings_dirname(void);
-char *settings_filename(void);
+wchar_t *settings_dirname(void);
+wchar_t *settings_filename(void);
 void settings_load(bool);
-void setting_store(char*, char*);
-char *setting_get(char*);
-int setting_exists(char*);
+void setting_store(wchar_t*, wchar_t*);
+wchar_t *setting_get(wchar_t*);
+int setting_exists(wchar_t*);

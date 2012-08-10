@@ -2,6 +2,7 @@
 
 #include <dlfcn.h>
 #include <dirent.h>
+#include <wchar.h>
 #include "events.h"
 #include "damn.h"
 #include "packet.h"
@@ -11,7 +12,7 @@
 typedef struct {
     bool triggered;
     bool async;
-    char *name;
+    wchar_t *name;
     damn_callback callback;
     unsigned char access;
 } command;

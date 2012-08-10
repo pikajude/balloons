@@ -15,6 +15,6 @@ typedef struct {
     void *arg;
 } cb;
 
-void dispatch(const char *, unsigned int, void (*)(struct _context *), struct _context *);
+void dispatch(const wchar_t *, unsigned int, void (*)(struct _context *), struct _context *);
 void thread_with_cleanup(cb *);
 void on_complete(void *);

@@ -22,33 +22,31 @@ void quicksort(void **arr, int beg, int end, int comparator(const void *, const 
     }
 }
 
-unsigned char access_get(char *uname) {
+unsigned char access_get(wchar_t *uname) {
     unsigned int _access;
-    char *setting_name = calloc(1, strlen(uname) + 8);
-    strcpy(setting_name, "access.");
-    strcat(setting_name, uname);
+    wchar_t *setting_name = calloc(1, (wcslen(uname) + 8) * sizeof(wchar_t));
+    swprintf(setting_name, wcslen(uname) + 8, L"access.%ls", uname);
     
-    char *setting = setting_get(setting_name);
+    wchar_t *setting = setting_get(setting_name);
     if (setting == NULL)
         _access = 0;
     else
-        sscanf(setting, "%d", &_access);
+        swscanf(setting, L"%d", &_access);
     return (unsigned char)_access;
 }
 
 void access_store(char *uname, unsigned char _access) {
     char *acbuf = calloc(1, 3);
     char *setting_name = calloc(1, strlen(uname) + 8);
-    strcpy(setting_name, "access.");
-    strcat(setting_name, uname);
+    sprintf(setting_name, "access.%s", uname);
     sprintf(acbuf, "%d", _access);
-    setting_store(setting_name, acbuf);
+    setting_store((wchar_t *)setting_name, (wchar_t *)acbuf);
 }
 
-unsigned char access_get_cmd(events *e, char *cmdname) {
+unsigned char access_get_cmd(events *e, wchar_t *cmdname) {
     events *cur = e;
     while (cur != NULL) {
-        if (strcmp(cur->name + 9, cmdname) == 0 || strcmp(cur->name + 11, cmdname) == 0)
+        if (wcscmp(cur->name + 9, cmdname) == 0 || wcscmp(cur->name + 11, cmdname) == 0)
             return cur->access;
         cur = cur->next;
     }

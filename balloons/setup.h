@@ -4,6 +4,6 @@
 #include "settings.h"
 #include "token.h"
 
-#define default_trigger "!"
+#define default_trigger L"!"
 
 void runsetup(void);

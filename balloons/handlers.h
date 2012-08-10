@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <wchar.h>
 #include "damn.h"
 #include "settings.h"
 #include "packet.h"
@@ -8,8 +9,9 @@
 #include "events.h"
 #include "logger.h"
 #include "tablumps.h"
+#include "htmlentities.h"
 
-void set_damntoken(char*);
+void set_damntoken(wchar_t*);
 
 #define HANDLER(x) void handler_##x(context *cbdata)
 

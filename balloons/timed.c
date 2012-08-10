@@ -11,7 +11,7 @@ void thread_with_cleanup(cb *c) {
     pthread_cleanup_pop(1);
 }
 
-void dispatch(const char *cmd, unsigned int t, void (*fun)(context *), struct _context *arg) {
+void dispatch(const wchar_t *cmd, unsigned int t, void (*fun)(context *), struct _context *arg) {
     if(fork() == 0) {
         pthread_t thread;
         bool f = false;
@@ -23,7 +23,7 @@ void dispatch(const char *cmd, unsigned int t, void (*fun)(context *), struct _c
         sleep(t);
         pthread_cancel(thread);
         if(!f) {
-            dsendmsg(arg->damn, pkt_roomname(arg->pkt), "Killed command <b>%s</b> (%p) after %u seconds", cmd + 9, thread, t);
+            dsendmsg(arg->damn, pkt_roomname(arg->pkt), L"Killed command <b>%ls</b> (%p) after %u seconds", cmd + 9, thread, t);
         }
         exit(0);
     }

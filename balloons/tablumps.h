@@ -5,14 +5,15 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <wchar.h>
 
 struct _lump {
-    char *find;
-    char *repl;
+    wchar_t *find;
+    wchar_t *repl;
     unsigned char arity;
     unsigned char groups[3];
 };
 
 typedef struct _lump lump;
 
-char *delump(char *);
+wchar_t *delump(wchar_t *);

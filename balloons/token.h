@@ -12,10 +12,10 @@
 #include "settings.h"
 #include "defs.h"
 
-#define CLIENT_ID "209"
-#define CLIENT_SECRET "85d3430961516f158846b776462db13f"
+#define CLIENT_ID L"209"
+#define CLIENT_SECRET L"85d3430961516f158846b776462db13f"
 
-char *token_get_code(void);
-char *token_get_access(char*, int);
-char *token_get_access_all(void);
-char *token_get_damn(char*);
+wchar_t *token_get_code(void);
+wchar_t *token_get_access(wchar_t*, int);
+wchar_t *token_get_access_all(void);
+wchar_t *token_get_damn(wchar_t*);

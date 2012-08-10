@@ -3,11 +3,11 @@
 static unsigned long event_counter = 0;
 static events *evtglob = NULL;
 
-static void ev_keyset(events *e, char *k) {
-    e->name = calloc(1, strlen(k) + 1);
+static void ev_keyset(events *e, wchar_t *k) {
+    e->name = calloc(1, sizeof(wchar_t) * (wcslen(k) + 1));
     if (e->name == NULL)
         HANDLE_ERR("Unable to allocate space for e->name");
-    strcpy(e->name, k);
+    wcscpy(e->name, k);
 }
 
 static events *ev_make(void) {
@@ -25,7 +25,7 @@ events *ev_get_global(void) {
     return evtglob;
 }
 
-unsigned long ev_hook(char *evname, damn_callback d, unsigned char _access, bool async) {
+unsigned long ev_hook(wchar_t *evname, damn_callback d, unsigned char _access, bool async) {
     events *e = ev_get_global();
     if (e->name == NULL) {
         ev_keyset(e, evname);
@@ -66,12 +66,12 @@ void ev_unhook(unsigned long id) {
     }
 }
 
-void ev_trigger_priv(char *evname, context cbdata, unsigned char level) {
+void ev_trigger_priv(wchar_t *evname, context cbdata, unsigned char level) {
     events *cur = ev_get_global();
     do {
         if (cur->name == NULL)
             return;
-        if (strcmp(cur->name, evname) == 0 && cur->access <= level) {
+        if (wcscmp(cur->name, evname) == 0 && cur->access <= level) {
             if (cur->async)
                 dispatch(cur->name, CMD_TIMEOUT, cur->d, &cbdata);
             else
@@ -80,6 +80,6 @@ void ev_trigger_priv(char *evname, context cbdata, unsigned char level) {
     } while ((cur = cur->next) != NULL);
 }
 
-void ev_trigger(char *evname, context cbdata) {
+void ev_trigger(wchar_t *evname, context cbdata) {
     return ev_trigger_priv(evname, cbdata, 255);
 }

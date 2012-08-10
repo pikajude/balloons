@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <locale.h>
 #include "api.h"
 #include "damn.h"
 #include "packet.h"
@@ -8,19 +9,19 @@
 #include "handlers.h"
 #include "setup.h"
 #include "timed.h"
+#include "htmlentities.h"
 
-static void getevtname(char *name, packet *p) {
-    strcat(name, "pkt.");
-    strcat(name, p->command);
-    if (strcmp(p->command, "property") == 0) {
-        strcat(name, ".");
-        strcat(name, pkt_getarg(p, "p"));
-    } else if (strcmp(p->command, "recv") == 0) {
+static void getevtname(wchar_t *name, packet *p) {
+    swprintf(name, wcslen(p->command) + 5, L"pkt.%ls", p->command);
+    if (wcscmp(p->command, L"property") == 0) {
+        wcscat(name, L".");
+        wcscat(name, pkt_getarg(p, L"p"));
+    } else if (wcscmp(p->command, L"recv") == 0) {
         assert(p->body != NULL);
         size_t loc = 9, strloc = 0;
-        strcat(name, ".");
+        wcscat(name, L".");
         while (p->body[strloc] != ' ')
-            name[loc++] = p->body[strloc++];
+            name[loc++] = btowc(p->body[strloc++]);
     }
 }
 
@@ -31,21 +32,21 @@ int main (int argc, const char *argv[])
     
     char *pkt;
     packet *p;
-    char *evtid = calloc(1, 25);
+    wchar_t *evtid = calloc(1, sizeof(wchar_t) * 25);
     if (evtid == NULL)
         HANDLE_ERR("Unable to allocate for event ID");
     
-    ev_hookany("pkt.dAmnServer", &handler_dAmnServer);
+    ev_hookany(L"pkt.dAmnServer", &handler_dAmnServer);
     load_libs();
-    ev_hookany("pkt.login", &handler_login);
-    ev_hookany("pkt.ping", &handler_ping);
-    ev_hookany("pkt.property.members", &handler_property_members);
-    ev_hookany("pkt.property.topic", &handler_property_topic);
-    ev_hookany("pkt.property.title", &handler_property_title);
-    ev_hookany("pkt.property.privclasses", &handler_property_privclasses);
-    ev_hookany("pkt.recv.msg", &handler_recv_msg);
+    ev_hookany(L"pkt.login", &handler_login);
+    ev_hookany(L"pkt.ping", &handler_ping);
+    ev_hookany(L"pkt.property.members", &handler_property_members);
+    ev_hookany(L"pkt.property.topic", &handler_property_topic);
+    ev_hookany(L"pkt.property.title", &handler_property_title);
+    ev_hookany(L"pkt.property.privclasses", &handler_property_privclasses);
+    ev_hookany(L"pkt.recv.msg", &handler_recv_msg);
 
-    char *tok = token_get_access_all();
+    wchar_t *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
     
     damn *d = damn_make();
@@ -60,7 +61,9 @@ int main (int argc, const char *argv[])
             dhandshake(d);
             pkt = damn_read(d);
         }
-        p = pkt_parse(pkt);
+        wchar_t *pktd = entity_decode(pkt);
+        free(pkt);
+        p = pkt_parse(pktd);
         if(p->body != NULL)
             p->body = delump(p->body);
         
@@ -69,8 +72,7 @@ int main (int argc, const char *argv[])
         exec_commands(d, p);
         
         pkt_free(p);
-        free(pkt);
-        zero(evtid, 25);
+        wmemset(evtid, 0, 25);
     }
 
     return 0;
