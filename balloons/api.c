@@ -14,7 +14,7 @@ static unsigned long hook_msg(command cmd) {
         if (cmd.name == NULL) {
             return ev_hook(L"cmd.notrig", cmd.callback, cmd.access, cmd.async);
         } else {
-            len = wcslen(cmd.name) + 11;
+            len = wcslen(cmd.name) + 12;
             wchar_t com[len];
             wmemset(com, 0, len);
             swprintf(com, len, L"cmd.notrig.%ls", cmd.name);
@@ -22,7 +22,7 @@ static unsigned long hook_msg(command cmd) {
         }
     } else {
         assert(cmd.name != NULL);
-        len = wcslen(cmd.name) + 9;
+        len = wcslen(cmd.name) + 10;
         wchar_t com[len];
         wmemset(com, 0, len);
         swprintf(com, len, L"cmd.trig.%ls", cmd.name);
@@ -71,13 +71,12 @@ void load_libs(void) {
         exit(EXIT_FAILURE);
         return;
     }
-    free(asciidir);
     
     while ((entry = readdir(extdir))) {
         ext = get_extension(entry->d_name);
         if (strcmp(ext, "so") == 0) {
             wmemset(path, 0, 512);
-            swprintf(path, 511, L"%ls/%s", entry->d_name);
+            swprintf(path, 511, L"%s/%s", asciidir, entry->d_name);
             asciipath = calloc(1, 1022);
             wcstombs(asciipath, path, 1022);
             lib = dlopen(asciipath, RTLD_NOW);

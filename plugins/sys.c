@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <string.h>
+#include <wchar.h>
 #ifndef __WIN32__
 #include <sys/utsname.h>
 #endif
@@ -13,8 +14,8 @@
 #include "alist.h"
 
 struct access_pair {
-    char *user;
-    char *level;
+    wchar_t *user;
+    wchar_t *level;
 };
 
 static _api *api;
@@ -31,12 +32,12 @@ static long microtime(void) {
 }
 
 static int cmp_events(const void *e1, const void *e2) {
-    return strcmp(((events *)e1)->name, ((events *)e2)->name);
+    return wcscmp(((events *)e1)->name, ((events *)e2)->name);
 }
 
 static int cmp_strint(const void *s1, const void *s2) {
-    char *str1 = ((struct access_pair *)s1)->level, *str2 = ((struct access_pair *)s2)->level;
-    size_t l1 = strlen(str1), l2 = strlen(str2), i;
+    wchar_t *str1 = ((struct access_pair *)s1)->level, *str2 = ((struct access_pair *)s2)->level;
+    size_t l1 = wcslen(str1), l2 = wcslen(str2), i;
     if (l1 != l2)
         return l1 > l2 ? 1 : -1;
     for (i = 0; i < l1; i++) {
@@ -51,11 +52,11 @@ static int cmp_strint(const void *s1, const void *s2) {
 
 static void about(context *ctx) {
 #ifdef __WIN32__
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on Windows", BVERSION);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by <b>incluye</b>, running C99 on Windows", BVERSION);
 #else
     struct utsname u;
     uname(&u);
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "<b>balloons</b> version %s, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
 #endif
 }
 
@@ -64,41 +65,43 @@ static void memuse(context *ctx) {
     struct task_basic_info info;
     mach_msg_type_number_t size = sizeof info;
     task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "Memory usage in bytes: %lu", info.resident_size);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Memory usage in bytes: %lu", info.resident_size);
 #endif
 }
 
 static void trigcheck(context *ctx) {
-    char *uname = setting_get(BKEY_USERNAME);
-    char *tc = calloc(1, strlen(uname) + 12);
-    sprintf(tc, "%s: trigcheck", uname);
-    if (strstr(ctx->msg, tc) != NULL)
-        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "%s: %s (or '%s: ')", ctx->sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
+    wchar_t *uname = setting_get(BKEY_USERNAME);
+	size_t len = wcslen(uname) + 12;
+    wchar_t *tc = calloc(1, sizeof(wchar_t) * len);
+    swprintf(tc, len, L"%ls: trigcheck", uname);
+    if (wcsstr(ctx->msg, tc) != NULL)
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"%ls: %ls (or '%ls: ')", ctx->sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
     free(tc);
 }
 
 static void botcheck(context *ctx) {
-    char *uname = setting_get(BKEY_USERNAME);
-    char *bc = calloc(1, strlen(uname) + 11);
-    sprintf(bc, "%s: botcheck", uname);
-    if (strstr(ctx->msg, bc) != NULL)
-        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "%s: I'm a bot!", ctx->sender);
+    wchar_t *uname = setting_get(BKEY_USERNAME);
+	size_t len = wcslen(uname) + 11;
+    wchar_t *bc = calloc(1, sizeof(wchar_t) * len);
+    swprintf(bc, len, L"%ls: botcheck", uname);
+    if (wcsstr(ctx->msg, bc) != NULL)
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"%ls: I'm a bot!", ctx->sender);
     free(bc);
 }
 
 static void ping(context *);
 
 static void pong(context *ctx) {
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "pong! (%ldms)", (microtime() - microseconds) / 1000);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"pong! (%ldms)", (microtime() - microseconds) / 1000);
     api->unhook(pingsendid);
     pingsendid = microseconds = 0;
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = L"ping", .callback = &ping });
 } 
 
 static void ping(context *ctx) {
     api->unhook(pinghookid);
-    pingsendid = api->hook_msg((command){ .triggered = false, .name = "ping?", .callback = &pong });
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "ping?");
+    pingsendid = api->hook_msg((command){ .triggered = false, .name = L"ping?", .callback = &pong });
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"ping?");
     microseconds = microtime();
 }
 
@@ -110,14 +113,14 @@ static void commands(context *ctx) {
     size_t idx = 0, fullsize = 24, i = (size_t)-1, j;
     unsigned char access = access_get(ctx->sender);
     
-    events **commands = calloc(1, fullsize * sizeof(char*));
+    events **commands = calloc(1, fullsize * sizeof(events*));
     events *cur = api->events;
     do {
-        if (strncmp(cur->name, "cmd.trig", 8) == 0)
+        if (wcsncmp(cur->name, L"cmd.trig", 8) == 0)
             commands[idx++] = cur;
         if (idx >= fullsize) {
             fullsize += 8;
-            commands = realloc(commands, fullsize * sizeof(char*));
+            commands = realloc(commands, fullsize * sizeof(events*));
             if (commands == NULL)
                 HANDLE_ERR("couldn't resize commands");
         }
@@ -125,16 +128,16 @@ static void commands(context *ctx) {
     while (commands[++i] != NULL);
     quicksort((void **)commands, 0, (int)i, cmp_events);
     
-    char *msgstr = malloc(10 + i * (BCMDLEN_MAX + 8));
-    strcpy(msgstr, "Commands: ");
+    wchar_t *msgstr = malloc(sizeof(wchar_t) * (10 + i * (BCMDLEN_MAX + 8)));
+    wcscpy(msgstr, L"Commands: ");
     
     for(j = 0; j < i; j++) {
         if (access < commands[j]->access)
-            strcat(msgstr, "<i>");
-        strcat(msgstr, commands[j]->name + 9);
+            wcscat(msgstr, L"<i>");
+        wcscat(msgstr, commands[j]->name + 9);
         if (access < commands[j]->access)
-            strcat(msgstr, "</i>");
-        strcat(msgstr, " ");
+            wcscat(msgstr, L"</i>");
+        wcscat(msgstr, L" ");
     }
     
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), msgstr);
@@ -142,19 +145,19 @@ static void commands(context *ctx) {
 }
 
 static void can(context *ctx) {
-    char uname[128], cmd[128];
+    wchar_t uname[128], cmd[128];
     unsigned char uaccess, caccess;
-    if (sscanf(ctx->msg, "%s use %[^? ]?", uname, cmd) < 2) {
-        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), "I don't know.");
+    if (swscanf(ctx->msg, L"%ls use %l[^? ]?", uname, cmd) < 2) {
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"I don't know.");
     } else {
         caccess = access_get_cmd(api->events, cmd);
-        if (strcmp(uname, "everyone") == 0) {
-            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), caccess == 0 ? "Yes." : "No.");
+        if (wcscmp(uname, L"everyone") == 0) {
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), caccess == 0 ? L"Yes." : L"No.");
         } else {
-            if (strcmp(uname, "I") == 0 || strcmp(uname, "i") == 0)
-                strcpy(uname, ctx->sender);
+            if (wcscmp(uname, L"I") == 0 || wcscmp(uname, L"i") == 0)
+                wcscpy(uname, ctx->sender);
             uaccess = access_get(uname);
-            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), uaccess >= caccess ? "Yes." : "No.");
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), uaccess >= caccess ? L"Yes." : L"No.");
         }
     }
 }
@@ -164,7 +167,7 @@ static void laccess(context *ctx) {
     struct access_pair *pairs = calloc(1, fullsize * sizeof(struct access_pair));
     settings *s = settings_all();
     while (s != NULL) {
-        if (strncmp(s->key, "access.", 7) == 0) {
+        if (wcsncmp(s->key, L"access.", 7) == 0) {
             pairs[cur++] = (struct access_pair){s->key + 7, s->value};
         }
         if (cur == fullsize - 1) {
@@ -177,12 +180,12 @@ static void laccess(context *ctx) {
     }
     quicksort((void **)&pairs, 0, (int)cur, cmp_strint);
     
-    char *msgstr = calloc(1, cur * 26);
+    wchar_t *msgstr = calloc(1, sizeof(wchar_t) * (cur * 26));
     for (fullsize = 0; fullsize < cur; fullsize++) {
-        strcat(msgstr, pairs[fullsize].user);
-        strcat(msgstr, "(");
-        strcat(msgstr, pairs[fullsize].level);
-        strcat(msgstr, ") ");
+        wcscat(msgstr, pairs[fullsize].user);
+        wcscat(msgstr, L"(");
+        wcscat(msgstr, pairs[fullsize].level);
+        wcscat(msgstr, L") ");
     }
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), msgstr);
     free(pairs);
@@ -192,12 +195,12 @@ void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
     api->hook_msg((command){ .callback = &botcheck });
-    pinghookid = api->hook_msg((command){ .triggered = true, .name = "ping", .callback = &ping });
-    api->hook_msg((command){ .triggered = true, .name = "echo", .callback = &echo, .access = 1 });
-    api->hook_msg((command){ .triggered = true, .name = "about", .callback = &about });
-    api->hook_msg((command){ .triggered = true, .name = "commands", .callback = &commands });
-    api->hook_msg((command){ .triggered = true, .name = "can", .callback = &can });
-    api->hook_msg((command){ .triggered = true, .name = "access", .callback = &laccess });
-    api->hook_msg((command){ .triggered = true, .name = "memuse", .callback = &memuse });
+    pinghookid = api->hook_msg((command){ .triggered = true, .name = L"ping", .callback = &ping });
+    api->hook_msg((command){ .triggered = true, .name = L"echo", .callback = &echo, .access = 1 });
+    api->hook_msg((command){ .triggered = true, .name = L"about", .callback = &about });
+    api->hook_msg((command){ .triggered = true, .name = L"commands", .callback = &commands });
+    api->hook_msg((command){ .triggered = true, .name = L"can", .callback = &can });
+    api->hook_msg((command){ .triggered = true, .name = L"access", .callback = &laccess });
+    api->hook_msg((command){ .triggered = true, .name = L"memuse", .callback = &memuse });
     settings_load(true);
 }
