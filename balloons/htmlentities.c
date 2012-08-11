@@ -291,6 +291,8 @@ wchar_t *entity_decode(char *s) {
             if(ss >= 1 && s[i + 1 + convlen + is_hex + is_numeric] == ';') {
                 wcs[j++] = current_entity;
                 i += convlen + 1 + is_hex + is_numeric;
+            } else {
+                goto give_up;
             }
         } else {
         give_up:
