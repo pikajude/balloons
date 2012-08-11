@@ -145,10 +145,10 @@ void exec_commands(damn *d, packet *p) {
     
     context cbdata = { d, p, sp->body, sender };
     
-    wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 12));
+    wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 13));
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
-    swprintf(ident, wcslen(sp->body) + 11, L"cmd.notrig.%ls", sp->body);
+    swprintf(ident, wcslen(sp->body) + 12, L"cmd.notrig.%ls", sp->body);
     ev_trigger_priv(ident, cbdata, senderaccess);
     ev_trigger_priv(L"cmd.notrig", cbdata, senderaccess);
 }
