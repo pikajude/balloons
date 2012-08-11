@@ -41,14 +41,13 @@ void dsendmsgtype(damn *d, char *type, wchar_t *room, wchar_t *msg, ...) {
     char *aroom = calloc(1, wcslen(room) * 4);
     wcstombs(aroom, room, wcslen(room) * 4);
     wchar_t *target = calloc(1, 8024 * sizeof(wchar_t));
-    char *towrite = calloc(1, 8024);
     va_start(args, msg);
     vswprintf(target, 8024, msg, args);
     va_end(args);
-    wcstombs(towrite, target, 8024);
-    dprintf(sock, "send chat:%s\n\n%s main\n\n%s", aroom, type, towrite);
+    char *e = entity_encode(target);
+    dprintf(sock, "send chat:%s\n\n%s main\n\n%s", aroom, type, e);
     send(sock, "", 1, 0);
-    free(towrite);
+    free(e);
     free(aroom);
     free(target);
 }

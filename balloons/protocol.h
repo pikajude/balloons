@@ -5,6 +5,7 @@
 #include <locale.h>
 #include <assert.h>
 #include "damn.h"
+#include "htmlentities.h"
 
 void dhandshake(struct _damn*);
 void dlogin(struct _damn*, wchar_t*, wchar_t*);

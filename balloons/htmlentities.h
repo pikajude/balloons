@@ -15,4 +15,4 @@ struct _entity {
 typedef struct _entity entity;
 
 wchar_t *entity_decode(char *s);
-char *entity_encode(char *s);
+char *entity_encode(wchar_t *s);

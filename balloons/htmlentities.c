@@ -299,3 +299,21 @@ wchar_t *entity_decode(char *s) {
     }
     return wcs;
 }
+
+char *entity_encode(wchar_t *c) {
+    char *buf = calloc(1, 8024);
+    size_t bi = 0;
+    int len;
+    for(size_t i = 0; i < wcslen(c); i++) {
+        if(c[i] > 127) {
+            buf[bi++] = '&';
+            buf[bi++] = '#';
+            len = sprintf(buf + bi, "%d", c[i]);
+            bi += (size_t)len;
+            buf[bi++] = ';';
+        } else {
+            buf[bi++] = (char)c[i];
+        }
+    }
+    return buf;
+}
