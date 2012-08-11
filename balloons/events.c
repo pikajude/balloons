@@ -59,7 +59,11 @@ void ev_unhook(unsigned long id) {
             events *nextnext = cur->next->next;
             free(cur->next->name);
             free(cur->next);
+            events *c = ev_get_global();
+            c = c;
             cur->next = nextnext;
+            c = c;
+            return;
         }
         cur = cur->next;
         if (cur == NULL) return;
@@ -76,6 +80,7 @@ void ev_trigger_priv(wchar_t *evname, context cbdata, unsigned char level) {
                 dispatch(cur->name, CMD_TIMEOUT, cur->d, &cbdata);
             else
                 cur->d(&cbdata);
+            return;
         }
     } while ((cur = cur->next) != NULL);
 }

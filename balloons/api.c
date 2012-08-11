@@ -135,20 +135,20 @@ void exec_commands(damn *d, packet *p) {
     if (triggered) {
         while (bod[len++] > 32);
         if (len > 1) {
-            cmdname = calloc(1, sizeof(wchar_t) * (len + 9));
+            cmdname = calloc(1, sizeof(wchar_t) * (len + 10));
             if (cmdname == NULL)
                 HANDLE_ERR("Unable to allocate command name");
-            swprintf(cmdname, len + 9, L"cmd.trig.%ls", bod);
+            swprintf(cmdname, len + 10, L"cmd.trig.%ls", bod);
             ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
         }
     }
     
     context cbdata = { d, p, sp->body, sender };
     
-    wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 11));
+    wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 12));
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
-    swprintf(ident, wcslen(sp->body) + 11, L"cmd.notrig.%ls", sp->body);
+    swprintf(ident, wcslen(sp->body) + 12, L"cmd.notrig.%ls", sp->body);
     ev_trigger_priv(ident, cbdata, senderaccess);
     ev_trigger_priv(L"cmd.notrig", cbdata, senderaccess);
 }
