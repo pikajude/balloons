@@ -59,10 +59,7 @@ void ev_unhook(unsigned long id) {
             events *nextnext = cur->next->next;
             free(cur->next->name);
             free(cur->next);
-            events *c = ev_get_global();
-            c = c;
             cur->next = nextnext;
-            c = c;
             return;
         }
         cur = cur->next;

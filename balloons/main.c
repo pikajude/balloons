@@ -27,6 +27,8 @@ static void getevtname(wchar_t *name, packet *p) {
 
 int main (int argc, const char *argv[])
 {
+    setlocale(LC_ALL, "");
+    
     signal(SIGCHLD, SIG_IGN); // prevent exiting children from killing process
     runsetup();
     

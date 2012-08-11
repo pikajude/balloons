@@ -279,7 +279,7 @@ wchar_t *entity_decode(char *s) {
             } else {
                 bool found = false;
                 for(size_t k = 0; k < sizeof(named_entities)/sizeof(entity); k++) {
-                    if(strncmp(s + 1, named_entities[k].name, strlen(named_entities[k].name)) == 0) {
+                    if(strncmp(s + i + 1, named_entities[k].name, strlen(named_entities[k].name)) == 0) {
                         found = true;
                         ss = 1;
                         current_entity = named_entities[k].ord;
