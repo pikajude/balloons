@@ -191,6 +191,11 @@ static void laccess(context *ctx) {
     free(pairs);
 }
 
+static void die(context *ctx) {
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Exiting.");
+    exit(0);
+}
+
 void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
@@ -202,5 +207,6 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = L"can", .callback = &can });
     api->hook_msg((command){ .triggered = true, .name = L"access", .callback = &laccess });
     api->hook_msg((command){ .triggered = true, .name = L"memuse", .callback = &memuse });
+    api->hook_msg((command){ .triggered = true, .name = L"quit", .callback = &die, .access = 254 });
     settings_load(true);
 }
