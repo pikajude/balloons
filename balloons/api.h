@@ -12,6 +12,7 @@
 typedef struct {
     bool triggered;
     bool async;
+    unsigned int timeout;
     wchar_t *name;
     damn_callback callback;
     unsigned char access;

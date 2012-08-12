@@ -12,13 +12,13 @@ static unsigned long hook_msg(command cmd) {
     assert(cmd.name == NULL || (cmd.name != NULL && wcslen(cmd.name) < BCMDLEN_MAX));
     if (!cmd.triggered) {
         if (cmd.name == NULL) {
-            return ev_hook(L"cmd.notrig", cmd.callback, cmd.access, cmd.async);
+            return ev_hook(L"cmd.notrig", cmd.callback, cmd.access, cmd.async, cmd.timeout);
         } else {
             len = wcslen(cmd.name) + 12;
             wchar_t com[len];
             wmemset(com, 0, len);
             swprintf(com, len, L"cmd.notrig.%ls", cmd.name);
-            return ev_hook(com, cmd.callback, cmd.access, cmd.async);
+            return ev_hook(com, cmd.callback, cmd.access, cmd.async, cmd.timeout);
         }
     } else {
         assert(cmd.name != NULL);
@@ -26,7 +26,7 @@ static unsigned long hook_msg(command cmd) {
         wchar_t com[len];
         wmemset(com, 0, len);
         swprintf(com, len, L"cmd.trig.%ls", cmd.name);
-        return ev_hook(com, cmd.callback, cmd.access, cmd.async);
+        return ev_hook(com, cmd.callback, cmd.access, cmd.async, cmd.timeout);
     }
 }
 
@@ -104,9 +104,9 @@ void exec_commands(damn *d, packet *p) {
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
         if (wcscmp(sp->command, L"join") == 0) {
-            ev_trigger(L"cmd.join", (context){d, p, NULL, (wchar_t *)sp->subcommand});
+            ev_trigger(L"cmd.join", (context){d, p, NULL, sp->subcommand});
         } else if (wcscmp(sp->command, L"part") == 0) {
-            ev_trigger(L"cmd.part", (context){d, p, NULL, (wchar_t *)sp->subcommand});
+            ev_trigger(L"cmd.part", (context){d, p, NULL, sp->subcommand});
         }
         return;
     }
