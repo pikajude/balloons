@@ -47,6 +47,9 @@ int main (int argc, const char *argv[])
     ev_hookany(L"pkt.property.title", &handler_property_title);
     ev_hookany(L"pkt.property.privclasses", &handler_property_privclasses);
     ev_hookany(L"pkt.recv.msg", &handler_recv_msg);
+    ev_hookany(L"pkt.recv.action", &handler_recv_action);
+    ev_hookany(L"pkt.recv.join", &handler_recv_join);
+    ev_hookany(L"pkt.recv.part", &handler_recv_part);
 
     wchar_t *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));

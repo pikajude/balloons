@@ -14,7 +14,11 @@ HANDLER(dAmnServer) {
 HANDLER(login) {
     if (wcscmp(pkt_getarg(cbdata->pkt, L"e"), L"ok") == 0) {
         wprintf(L"Logged in as %ls.\n", cbdata->pkt->subcommand);
-        djoin(cbdata->damn, L"DevelopingDevelopers");
+        wchar_t *split, *room, *autojoin = setting_get(BKEY_AUTOJOIN);
+        room = wcstok(autojoin, L" ", &split);
+        do {
+            djoin(cbdata->damn, room[0] == L'#' ? room + 1 : room);
+        } while ((room = wcstok(NULL, L" ", &split)) != NULL);
     } else {
         printf("Failed to log in, how the fuck did that happen?\n");
     }
@@ -49,4 +53,27 @@ HANDLER(recv_msg) {
     packet *s = pkt_subpacket(cbdata->pkt);
     logger(green, L"<%ls> ", pkt_from(s));
     wprintf(L"%ls\n", s->body);
+    free(s);
+}
+
+HANDLER(recv_action) {
+    logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
+    packet *s = pkt_subpacket(cbdata->pkt);
+    logger(green, L"* %ls ", pkt_from(s));
+    wprintf(L"%ls\n", s->body);
+    free(s);
+}
+
+HANDLER(recv_join) {
+    logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
+    packet *s = pkt_subpacket(cbdata->pkt);
+    logger(green, L"» %ls\n", s->subcommand);
+    free(s);
+}
+
+HANDLER(recv_part) {
+    logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
+    packet *s = pkt_subpacket(cbdata->pkt);
+    logger(red, L"« %ls\n", s->subcommand);
+    free(s);
 }

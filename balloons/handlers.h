@@ -23,3 +23,6 @@ HANDLER(property_topic);
 HANDLER(property_title);
 HANDLER(property_privclasses);
 HANDLER(recv_msg);
+HANDLER(recv_action);
+HANDLER(recv_join);
+HANDLER(recv_part);
