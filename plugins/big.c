@@ -708,10 +708,8 @@ static void big(context *ctx) {
     wcscat(output, L"<bcode>");
     size_t i, j, k, l = 7, lim = wcslen(s);
     letter **str = malloc(sizeof(letter*) * lim);
-    for(i = 0; i < lim; i++) {
-        printf("%d\n", s[i]);
+    for(i = 0; i < lim; i++)
         str[i] = getbig(s[i]);
-    }
     for(i = 0; i < LETTER_HEIGHT; i++) {
         for(j = 0; j < lim; j++) {
             for(k = 0; k < str[j]->width; k++) {
