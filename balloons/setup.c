@@ -38,6 +38,7 @@ static void setup_get_token(void) {
 }
 
 static void setup_get_trigger(void) {
+    if(setting_get(BKEY_TRIGGER) != NULL) return;
     wchar_t *trigger = calloc(1, sizeof(wchar_t) * (wcslen(default_trigger) + 1));
     char *holder = calloc(1, 1);
     if (trigger == NULL)
@@ -63,6 +64,7 @@ static void setup_get_trigger(void) {
 }
 
 static void setup_get_extpath(void) {
+    if(setting_get(BKEY_EXTENSIONS_DIR) != NULL) return;
     char *holder = malloc(1);
     size_t size = 0;
     wchar_t *curpath = settings_dirname();
@@ -109,6 +111,7 @@ static void setup_get_extpath(void) {
 }
 
 static void setup_get_autojoin(void) {
+    if(setting_get(BKEY_AUTOJOIN) != NULL) return;
     wchar_t *autojoin;
     char *holder = malloc(1);
     size_t size = 0;
@@ -150,7 +153,7 @@ static void setup_get_owner(void) {
     } else {
         wchar_t *sname = calloc(1, sizeof(wchar_t) * (8 + strlen(owner)));
         swprintf(sname, 8 + strlen(owner), L"access.%s", owner);
-        setting_store((wchar_t *)sname, L"254");
+        setting_store(sname, L"254");
         free(owner);
         free(sname);
     }
