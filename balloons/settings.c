@@ -93,7 +93,7 @@ void setting_store(wchar_t *key, wchar_t *value) {
     free(afname);
     settings *s = current_settings;
     while (s != NULL) {
-        fwprintf(set, L"%.64ls: %.512ls\n", s->key, s->value);
+        fwprintf(set, L"%.64ls: %.2048ls\n", s->key, s->value);
         s = s->next;
     }
     fclose(set);

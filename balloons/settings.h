@@ -13,8 +13,8 @@
 #include "defs.h"
 
 #define KEYLEN 65
-#define VALLEN 513
-#define ARGFMT L"%64l[^:]: %512l[^\n]\n"
+#define VALLEN 2049
+#define ARGFMT L"%64l[^:]: %2048l[^\n]\n"
 
 typedef arglist settings;
 

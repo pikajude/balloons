@@ -35,6 +35,10 @@ static int cmp_events(const void *e1, const void *e2) {
     return wcscmp(((events *)e1)->name, ((events *)e2)->name);
 }
 
+static int cmp_str(const void *e1, const void *e2) {
+    return wcscmp((wchar_t *)e1, (wchar_t *)e2);
+}
+
 static int cmp_strint(const void *s1, const void *s2) {
     wchar_t *str1 = ((struct access_pair *)s1)->level, *str2 = ((struct access_pair *)s2)->level;
     size_t l1 = wcslen(str1), l2 = wcslen(str2), i;
@@ -196,6 +200,70 @@ static void die(context *ctx) {
     exit(0);
 }
 
+static void autojoin(context *ctx) {
+    size_t idx = 0;
+    wchar_t *msg = ctx->msg;
+    wchar_t **rooms = NULL, *split, *room, *set = setting_get(BKEY_AUTOJOIN);
+    room = wcstok(set, L" ", &split);
+    do {
+        rooms = realloc(rooms, sizeof(wchar_t *) * (idx + 1));
+        rooms[idx++] = room[0] == L'#' ? room + 1 : room;
+    } while ((room = wcstok(NULL, L" ", &split)) != NULL);
+    
+    quicksort((void **)rooms, 0, (int)idx, cmp_str);
+    
+    if(wcsncmp(msg, L"list", 4) == 0) {
+        size_t len = 0;
+        int i = 0;
+        for(; i < idx; i++) {
+            len += wcslen(rooms[i]) + 2;
+        }
+        wchar_t *list = calloc(1, sizeof(wchar_t) * (len + 1));
+        for(i = 0; i < idx; i++) {
+            wcscat(list, L"#");
+            wcscat(list, rooms[i]);
+            wcscat(list, L" ");
+        }
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), list);
+    } else if(wcsncmp(msg, L"add", 3) == 0) {
+        if(wcslen(msg) > 4) {
+            wchar_t *new = wcsdup(msg + 4 + (msg[0] == '#'));
+            wchar_t *sp = wcschr(new, L' ');
+            if(sp != NULL)
+                sp[0] = '\0';
+            int j;
+            for(j = 0; j < idx; j++) {
+                if(wcscmp(rooms[j], new) == 0) {
+                    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"That room is already in the list!");
+                    goto done;
+                }
+            }
+            rooms = realloc(rooms, sizeof(wchar_t *) * (idx + 1));
+            rooms[idx] = new;
+            wchar_t *target = calloc(1, 2048 * sizeof(wchar_t));
+            int k;
+            for(k = 0; k <= idx; k++) {
+                wcscat(target, rooms[k]);
+                if(k < idx)
+                    wcscat(target, L" ");
+            }
+            wprintf(L"%ls", target);
+            api->setting_store(BKEY_AUTOJOIN, target);
+            free(target);
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Done.");
+        } else {
+            dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Usage: autojoin add <i>room</i>");
+        }
+    } else if(wcsncmp(msg, L"del ", 4) == 0) {
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"del");
+    } else {
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Usage: autojoin (add <i>room</i> | del <i>room</i> | list)");
+    }
+    
+done:
+    free(rooms);
+}
+
 void balloons_init(_api *a) {
     api = a;
     api->hook_msg((command){ .callback = &trigcheck });
@@ -203,6 +271,7 @@ void balloons_init(_api *a) {
     pinghookid = api->hook_msg((command){ .triggered = true, .name = L"ping", .callback = &ping });
     api->hook_msg((command){ .triggered = true, .name = L"echo", .callback = &echo, .access = 1 });
     api->hook_msg((command){ .triggered = true, .name = L"about", .callback = &about });
+    api->hook_msg((command){ .triggered = true, .name = L"autojoin", .callback = &autojoin, .access = 254 });
     api->hook_msg((command){ .triggered = true, .name = L"commands", .callback = &commands });
     api->hook_msg((command){ .triggered = true, .name = L"can", .callback = &can });
     api->hook_msg((command){ .triggered = true, .name = L"access", .callback = &laccess });

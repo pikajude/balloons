@@ -23,6 +23,7 @@ typedef struct {
     unsigned long (*hook_join)(damn_callback);
     unsigned long (*hook_part)(damn_callback);
     void (*unhook)(unsigned long);
+    void (*setting_store)(wchar_t *, wchar_t *);
     events *events;
 } _api;
 
