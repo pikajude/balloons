@@ -57,6 +57,8 @@ int main (int argc, const char *argv[])
     damn *d = damn_make();
     dhandshake(d);
     
+    context *c;
+    
     for (;;) {
         pkt = damn_read(d);
         if (pkt == NULL) {
@@ -72,11 +74,19 @@ int main (int argc, const char *argv[])
         if(p->body != NULL)
             p->body = delump(p->body);
         
+        p->ref = 0;
+        
         getevtname(evtid, p);
-        ev_trigger(evtid, (context){ d, p, p->body, NULL });
+        c = malloc(sizeof(context));
+        c->damn = d;
+        c->pkt = p;
+        c->msg = p->body;
+        c->sender = NULL;
+        ev_trigger(evtid, c);
         exec_commands(d, p);
         
-        pkt_free(p);
+        if(p->ref == 0)
+            free(p);
         wmemset(evtid, 0, 25);
     }
 

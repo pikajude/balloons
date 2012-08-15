@@ -69,21 +69,21 @@ void ev_unhook(unsigned long id) {
     }
 }
 
-void ev_trigger_priv(wchar_t *evname, context cbdata, unsigned char level) {
+void ev_trigger_priv(wchar_t *evname, context *cbdata, unsigned char level) {
     events *cur = ev_get_global();
     do {
         if (cur->name == NULL)
             return;
         if (wcscmp(cur->name, evname) == 0 && cur->access <= level) {
             if (cur->async)
-                dispatch(cur->name, cur->timeout > 0 ? cur->timeout : CMD_TIMEOUT, cur->d, &cbdata);
+                dispatch(cur->name, cur->timeout > 0 ? cur->timeout : CMD_TIMEOUT, cur->d, cbdata);
             else
-                cur->d(&cbdata);
+                cur->d(cbdata);
             return;
         }
     } while ((cur = cur->next) != NULL);
 }
 
-void ev_trigger(wchar_t *evname, context cbdata) {
+void ev_trigger(wchar_t *evname, context *cbdata) {
     return ev_trigger_priv(evname, cbdata, 255);
 }

@@ -10,9 +10,11 @@
 struct _context;
 
 typedef struct {
+    const wchar_t *cmd;
     bool *complete;
     void (*fun)(struct _context *);
     void *arg;
+    unsigned int slp;
 } cb;
 
 void dispatch(const wchar_t *, unsigned int, void (*)(struct _context *), struct _context *);

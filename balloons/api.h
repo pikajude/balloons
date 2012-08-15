@@ -8,6 +8,7 @@
 #include "packet.h"
 #include "settings.h"
 #include "utils.h"
+#include "protocol.h"
 
 typedef struct {
     bool triggered;

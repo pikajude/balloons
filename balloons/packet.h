@@ -11,6 +11,7 @@ typedef struct {
     wchar_t *subcommand;
     arglist *args;
     wchar_t *body;
+    int ref;
 } packet;
 
 packet *packet_parse(const wchar_t*, int);

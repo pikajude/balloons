@@ -102,13 +102,20 @@ void load_libs(void) {
 void exec_commands(damn *d, packet *p) {
     if (wcscmp(p->command, L"recv") != 0) return;
     
+    context *ctx = malloc(sizeof(context));
+    ctx->damn = d;
+    ctx->pkt = p;
+    
     packet *sp = pkt_subpacket(p);
     if (sp->body == NULL) {
+        ctx->msg = NULL;
+        ctx->sender = sp->subcommand;
         if (wcscmp(sp->command, L"join") == 0) {
-            ev_trigger(L"cmd.join", (context){d, p, NULL, sp->subcommand});
+            ev_trigger(L"cmd.join", ctx);
         } else if (wcscmp(sp->command, L"part") == 0) {
-            ev_trigger(L"cmd.part", (context){d, p, NULL, sp->subcommand});
+            ev_trigger(L"cmd.part", ctx);
         }
+        free(ctx);
         return;
     }
     
@@ -140,16 +147,23 @@ void exec_commands(damn *d, packet *p) {
             if (cmdname == NULL)
                 HANDLE_ERR("Unable to allocate command name");
             swprintf(cmdname, len + 9, L"cmd.trig.%ls", bod);
-            ev_trigger_priv(cmdname, (context){d, p, bod + len, sender }, senderaccess);
+            ctx->msg = bod + len;
+            ctx->sender = sender;
+            ev_trigger_priv(cmdname, ctx, senderaccess);
+            ctx = malloc(sizeof(context));
+            ctx->damn = d;
+            ctx->pkt = p;
         }
     }
-    
-    context cbdata = { d, p, sp->body, sender };
+
+    ctx->msg = sp->body;
+    ctx->sender = sender;
     
     wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 13));
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
     swprintf(ident, wcslen(sp->body) + 12, L"cmd.notrig.%ls", sp->body);
-    ev_trigger_priv(ident, cbdata, senderaccess);
-    ev_trigger_priv(L"cmd.notrig", cbdata, senderaccess);
+    ev_trigger_priv(ident, ctx, senderaccess);
+    ev_trigger_priv(L"cmd.notrig", ctx, senderaccess);
+    free(ident);
 }
