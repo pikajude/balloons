@@ -107,15 +107,17 @@ void exec_commands(damn *d, packet *p) {
     ctx->pkt = p;
     
     packet *sp = pkt_subpacket(p);
-    if (sp->body == NULL) {
+    if(wcscmp(sp->command, L"join") == 0) {
         ctx->msg = NULL;
         ctx->sender = sp->subcommand;
-        if (wcscmp(sp->command, L"join") == 0) {
-            ev_trigger(L"cmd.join", ctx);
-        } else if (wcscmp(sp->command, L"part") == 0) {
-            ev_trigger(L"cmd.part", ctx);
-        }
-        free(ctx);
+        ev_trigger(L"cmd.join", ctx);
+        return;
+    }
+    
+    if(wcscmp(sp->command, L"part") == 0) {
+        ctx->msg = NULL;
+        ctx->sender = sp->subcommand;
+        ev_trigger(L"cmd.part", ctx);
         return;
     }
     
