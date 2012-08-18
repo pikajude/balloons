@@ -87,7 +87,7 @@ int main (int argc, const char *argv[])
         exec_commands(d, p);
         
         if(p->ref == 0)
-            free(p);
+            pkt_free(p);
         wmemset(evtid, 0, 25);
     }
 
