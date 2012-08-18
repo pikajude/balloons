@@ -1,11 +1,11 @@
 #include "timed.h"
 #include "events.h"
 
-void on_complete(void *b) {
+static void on_complete(void *b) {
     *((bool *)b) = true;
 }
 
-void thread_with_cleanup(cb *c) {
+static void thread_with_cleanup(cb *c) {
     pthread_cleanup_push(on_complete, c->complete);
     c->fun(c->arg);
     pthread_cleanup_pop(1);
