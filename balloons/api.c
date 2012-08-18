@@ -48,6 +48,8 @@ void load_libs(void) {
     char *asciipath;
     
     _api *a = malloc(sizeof(_api));
+    chatenv *c = malloc(sizeof(chatenv));
+    c->get_users = rget_users;
     if (a == NULL)
         HANDLE_ERR("Unable to allocate memory for _api");
     a->hook_msg = hook_msg;
@@ -56,6 +58,7 @@ void load_libs(void) {
     a->unhook = ev_unhook;
     a->events = ev_get_global();
     a->setting_store = setting_store;
+    a->chatenv = c;
     
     wchar_t *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL) {

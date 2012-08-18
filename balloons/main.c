@@ -42,6 +42,7 @@ int main (int argc, const char *argv[])
     load_libs();
     ev_hookany(L"pkt.login", &handler_login);
     ev_hookany(L"pkt.ping", &handler_ping);
+    ev_hookany(L"pkt.join", &handler_join);
     ev_hookany(L"pkt.property.members", &handler_property_members);
     ev_hookany(L"pkt.property.topic", &handler_property_topic);
     ev_hookany(L"pkt.property.title", &handler_property_title);

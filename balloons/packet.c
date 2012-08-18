@@ -2,11 +2,10 @@
 
 static size_t _parse_cmd(packet *p, const wchar_t *str) {
     size_t idx = wcscspn(str, L" \n");
-    p->command = malloc(sizeof(wchar_t) * (idx + 1));
+    p->command = calloc(1, sizeof(wchar_t) * (idx + 1));
     if (p->command == NULL)
         HANDLE_ERR("Unable to allocate memory for p->command");
     wcsncpy(p->command, str, idx);
-    p->command[idx] = 0;
     return idx;
 }
 
@@ -15,21 +14,19 @@ static size_t _parse_subcmd(packet *p, const wchar_t *str) {
         return 0;
     str++;
     size_t idx = wcscspn(str, L"\n") + 1;
-    p->subcommand = malloc(sizeof(wchar_t) * idx);
+    p->subcommand = calloc(1, sizeof(wchar_t) * idx);
     if (p->subcommand == NULL)
         HANDLE_ERR("Unable to allocate memory for p->subcommand");
     wcsncpy(p->subcommand, str, idx - 1);
-    p->subcommand[idx - 1] = 0;
     return idx + 1;
 }
 
 static size_t _parse_body(packet *p, const wchar_t *str) {
     size_t len = wcslen(str);
-    p->body = malloc(sizeof(wchar_t) * (len + 1));
+    p->body = calloc(1, sizeof(wchar_t) * (len + 1));
     if (p->body == NULL)
         HANDLE_ERR("Unable to allocate memory for p->body");
     wcsncpy(p->body, str, len);
-    p->body[len] = 0;
     return 0; // doesn't matter, because nothing is called after this
 }
 
@@ -40,20 +37,18 @@ static size_t _parse_argpair(packet *p, const wchar_t *str) {
     // get the key
     size_t idx = wcscspn(str, L"=\n");
     if (str[idx] == '\n') return idx + 1;
-    wchar_t *key = malloc(sizeof(wchar_t) * (idx + 1));
+    wchar_t *key = calloc(1, sizeof(wchar_t) * (idx + 1));
     if (key == NULL)
         HANDLE_ERR("Unable to allocate memory for key");
     wcsncpy(key, str, idx);
-    key[idx] = 0;
     str += (idx + 1);
     
     // get the value!
     size_t idx_n = wcscspn(str, L"\n");
-    wchar_t *value = malloc(sizeof(wchar_t) * (idx_n + 1));
+    wchar_t *value = calloc(1, sizeof(wchar_t) * (idx_n + 1));
     if (value == NULL)
         HANDLE_ERR("Unable to allocate memory for value");
     wcsncpy(value, str, idx_n);
-    value[idx_n] = 0;
     
     // make the argument pair
     if (p->args == NULL)

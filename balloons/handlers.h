@@ -10,6 +10,7 @@
 #include "logger.h"
 #include "tablumps.h"
 #include "htmlentities.h"
+#include "chatenv.h"
 
 void set_damntoken(wchar_t*);
 
@@ -18,6 +19,8 @@ void set_damntoken(wchar_t*);
 HANDLER(dAmnServer);
 HANDLER(login);
 HANDLER(ping);
+HANDLER(join);
+HANDLER(part);
 HANDLER(property_members);
 HANDLER(property_topic);
 HANDLER(property_title);

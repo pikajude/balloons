@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "protocol.h"
+#include "chatenv.h"
 
 typedef struct {
     bool triggered;
@@ -20,11 +21,16 @@ typedef struct {
 } command;
 
 typedef struct {
+    user *(*get_users)(wchar_t *);
+} chatenv;
+
+typedef struct {
     unsigned long (*hook_msg)(command);
     unsigned long (*hook_join)(damn_callback);
     unsigned long (*hook_part)(damn_callback);
     void (*unhook)(unsigned long);
     void (*setting_store)(wchar_t *, wchar_t *);
+    chatenv *chatenv;
     events *events;
 } _api;
 

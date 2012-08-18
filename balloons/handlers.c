@@ -28,17 +28,40 @@ HANDLER(ping) {
     dpong(cbdata->damn);
 }
 
+HANDLER(join) {
+    if(wcscmp(pkt_getarg(cbdata->pkt, L"e"), L"ok") == 0) {
+        logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
+        printf(" Joined.\n");
+        add_room(pkt_roomname(cbdata->pkt));
+    } else {
+        printf("Couldn't join whatever.\n");
+    }
+}
+
+HANDLER(part) {
+    if(wcscmp(pkt_getarg(cbdata->pkt, L"e"), L"ok") == 0) {
+        logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
+        printf(" Parted.\n");
+        delete_room(pkt_roomname(cbdata->pkt));
+    } else {
+        printf("Couldn't part whatever.\n");
+    }
+}
+
 HANDLER(property_members) {
+    radd_users(pkt_roomname(cbdata->pkt), cbdata->pkt);
     logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
     printf(" Got members.\n");
 }
 
 HANDLER(property_topic) {
+    rset_topic(pkt_roomname(cbdata->pkt), cbdata->pkt->body);
     logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
     wprintf(L" Topic: %ls\n", cbdata->pkt->body);
 }
 
 HANDLER(property_title) {
+    rset_title(pkt_roomname(cbdata->pkt), cbdata->pkt->body);
     logger(blue, L"#%ls", pkt_roomname(cbdata->pkt));
     wprintf(L" Title: %ls\n", cbdata->pkt->body);
 }
@@ -68,6 +91,7 @@ HANDLER(recv_join) {
     logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
     packet *s = pkt_subpacket(cbdata->pkt);
     logger(green, L"» %ls\n", s->subcommand);
+    radd_user(pkt_roomname(cbdata->pkt), s->subcommand);
     free(s);
 }
 
@@ -75,5 +99,6 @@ HANDLER(recv_part) {
     logger(blue, L"#%ls ", pkt_roomname(cbdata->pkt));
     packet *s = pkt_subpacket(cbdata->pkt);
     logger(red, L"« %ls\n", s->subcommand);
+    rdel_user(pkt_roomname(cbdata->pkt), s->subcommand);
     free(s);
 }
