@@ -171,4 +171,7 @@ void exec_commands(damn *d, packet *p) {
     ev_trigger_priv(ident, ctx, senderaccess);
     ev_trigger_priv(L"cmd.notrig", ctx, senderaccess);
     free(ident);
+    
+    if(p->ref == 0)
+        free(ctx);
 }

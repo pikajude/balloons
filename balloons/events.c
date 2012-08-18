@@ -77,10 +77,8 @@ void ev_trigger_priv(wchar_t *evname, context *cbdata, unsigned char level) {
         if (wcscmp(cur->name, evname) == 0 && cur->access <= level) {
             if (cur->async)
                 dispatch(cur->name, cur->timeout > 0 ? cur->timeout : CMD_TIMEOUT, cur->d, cbdata);
-            else {
+            else
                 cur->d(cbdata);
-                free(cbdata);
-            }
         }
     } while ((cur = cur->next) != NULL);
 }
