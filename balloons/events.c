@@ -4,10 +4,9 @@ static unsigned long event_counter = 0;
 static events *evtglob = NULL;
 
 static void ev_keyset(events *e, wchar_t *k) {
-    e->name = calloc(1, sizeof(wchar_t) * (wcslen(k) + 1));
+    e->name = wcsdup(k);
     if (e->name == NULL)
         HANDLE_ERR("Unable to allocate space for e->name");
-    wcscpy(e->name, k);
 }
 
 static events *ev_make(void) {

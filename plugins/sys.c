@@ -73,17 +73,17 @@ static void memuse(context *ctx) {
 }
 
 static void trigcheck(context *ctx) {
-    wchar_t *uname = setting_get(BKEY_USERNAME);
+    wchar_t *uname = api->setting_get(BKEY_USERNAME);
 	size_t len = wcslen(uname) + 12;
     wchar_t *tc = calloc(1, sizeof(wchar_t) * len);
     swprintf(tc, len, L"%ls: trigcheck", uname);
     if (wcsstr(ctx->msg, tc) != NULL)
-        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"%ls: %ls (or '%ls: ')", ctx->sender, setting_get(BKEY_TRIGGER), setting_get(BKEY_USERNAME));
+        dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"%ls: %ls (or '%ls: ')", ctx->sender, api->setting_get(BKEY_TRIGGER), api->setting_get(BKEY_USERNAME));
     free(tc);
 }
 
 static void botcheck(context *ctx) {
-    wchar_t *uname = setting_get(BKEY_USERNAME);
+    wchar_t *uname = api->setting_get(BKEY_USERNAME);
 	size_t len = wcslen(uname) + 11;
     wchar_t *bc = calloc(1, sizeof(wchar_t) * len);
     swprintf(bc, len, L"%ls: botcheck", uname);
@@ -203,7 +203,7 @@ static void autojoin(context *ctx) {
     size_t idx = 0;
     int j, k;
     wchar_t *msg = ctx->msg;
-    wchar_t **rooms = NULL, *split, *room, *new, *sp, *target, *set = setting_get(BKEY_AUTOJOIN);
+    wchar_t **rooms = NULL, *split, *room, *new, *sp, *target, *set = wcsdup(api->setting_get(BKEY_AUTOJOIN));
     room = wcstok(set, L" ", &split);
     do {
         rooms = realloc(rooms, sizeof(wchar_t *) * (idx + 1));
@@ -227,7 +227,7 @@ static void autojoin(context *ctx) {
         dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), list);
     } else if(wcsncmp(msg, L"add", 3) == 0) {
         if(wcslen(msg) > 4 && msg[3] == L' ') {
-            new = wcsdup(msg + 4 + (msg[0] == '#'));
+            new = wcsdup(msg + 4 + (msg[4] == '#'));
             sp = wcschr(new, L' ');
             if(sp != NULL)
                 sp[0] = '\0';
@@ -253,7 +253,7 @@ static void autojoin(context *ctx) {
         }
     } else if(wcsncmp(msg, L"del", 3) == 0) {
         if(wcslen(msg) > 4 && msg[3] == L' ') {
-            new = wcsdup(msg + 4 + (msg[0] == '#'));
+            new = wcsdup(msg + 4 + (msg[4] == '#'));
             sp = wcschr(new, L' ');
             bool found;
             if(sp != NULL)
@@ -286,6 +286,7 @@ static void autojoin(context *ctx) {
     }
     
 done:
+    free(set);
     free(rooms);
 }
 
@@ -302,5 +303,4 @@ void balloons_init(_api *a) {
     api->hook_msg((command){ .triggered = true, .name = L"access", .callback = &laccess });
     api->hook_msg((command){ .triggered = true, .name = L"memuse", .callback = &memuse });
     api->hook_msg((command){ .triggered = true, .name = L"quit", .callback = &die, .access = 254 });
-    settings_load(true);
 }

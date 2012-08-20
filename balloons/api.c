@@ -58,6 +58,7 @@ void load_libs(void) {
     a->unhook = ev_unhook;
     a->events = ev_get_global();
     a->setting_store = setting_store;
+    a->setting_get = setting_get;
     a->chatenv = c;
     
     wchar_t *exts = setting_get(BKEY_EXTENSIONS_DIR);

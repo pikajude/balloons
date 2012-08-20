@@ -39,11 +39,10 @@ static void setup_get_token(void) {
 
 static void setup_get_trigger(void) {
     if(setting_get(BKEY_TRIGGER) != NULL) return;
-    wchar_t *trigger = calloc(1, sizeof(wchar_t) * (wcslen(default_trigger) + 1));
+    wchar_t *trigger = wcsdup(default_trigger);;
     char *holder = calloc(1, 1);
     if (trigger == NULL)
         HANDLE_ERR("Unable to allocate trigger space");
-    wcscpy(trigger, default_trigger);
     size_t size = 1;
     wprintf(L"Enter a trigger for the bot [%ls]: ", default_trigger);
     getline(&holder, &size, stdin);

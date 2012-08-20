@@ -30,6 +30,7 @@ typedef struct {
     unsigned long (*hook_part)(damn_callback);
     void (*unhook)(unsigned long);
     void (*setting_store)(wchar_t *, wchar_t *);
+    wchar_t *(*setting_get)(wchar_t *);
     chatenv *chatenv;
     events *events;
 } _api;

@@ -7,6 +7,8 @@ compile () {
     fi
     echo "gcc -shared -Wl,-install_name,$1.so -o $1.so $1.o ../build/*.o -lcurl"
     gcc -shared "-Wl,-install_name,$1.so" -o "$1.so" "$1.o" ../build/*.o -lcurl
+    echo "rm $1.o"
+    rm "$1.o"
 }
 
 cd $(dirname $0)

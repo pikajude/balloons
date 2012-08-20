@@ -14,7 +14,7 @@ HANDLER(dAmnServer) {
 HANDLER(login) {
     if (wcscmp(pkt_getarg(cbdata->pkt, L"e"), L"ok") == 0) {
         wprintf(L"Logged in as %ls.\n", cbdata->pkt->subcommand);
-        wchar_t *split, *room, *autojoin = setting_get(BKEY_AUTOJOIN);
+        wchar_t *split, *room, *autojoin = wcsdup(setting_get(BKEY_AUTOJOIN));
         room = wcstok(autojoin, L" ", &split);
         do {
             djoin(cbdata->damn, room[0] == L'#' ? room + 1 : room);

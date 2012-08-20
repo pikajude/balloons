@@ -19,8 +19,7 @@ static void rfree(room *r) {
 
 static void add_user(room *r, wchar_t *name) {
     user *new = calloc(1, sizeof(user)), *cur = r->users;
-    new->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
-    wcscpy(new->name, name);
+    new->name = wcsdup(name);
     new->joincount = 1;
     if(cur == NULL) {
         r->users = new;
@@ -63,9 +62,7 @@ static void del_user(room *r, wchar_t *name) {
 
 void add_room(wchar_t *name) {
     room *r = calloc(1, sizeof(room));
-    size_t len = wcslen(name);
-    r->name = calloc(1, sizeof(wchar_t) * (len + 1));
-    wcscpy(r->name, name);
+    r->name = wcsdup(name);
     room *cur = roomstore;
     if(cur == NULL)
         roomstore = r;
@@ -96,8 +93,7 @@ void rset_title(wchar_t *name, wchar_t *title) {
     room *cur = roomstore;
     do {
         if(wcscmp(cur->name, name) == 0) {
-            cur->title = calloc(1, sizeof(wchar_t) * (wcslen(title) + 1));
-            wcscpy(cur->title, title);
+            cur->title = wcsdup(title);
             return;
         }
     } while ((cur = cur->next) != NULL);
@@ -107,8 +103,7 @@ void rset_topic(wchar_t *name, wchar_t *topic) {
     room *cur = roomstore;
     do {
         if(wcscmp(cur->name, name) == 0) {
-            cur->topic = calloc(1, sizeof(wchar_t) * (wcslen(topic) + 1));
-            wcscpy(cur->topic, topic);
+            cur->topic = wcsdup(topic);
             return;
         }
     } while ((cur = cur->next) != NULL);
