@@ -105,12 +105,14 @@ void load_libs(void) {
 
 void exec_commands(damn *d, packet *p) {
     if (wcscmp(p->command, L"recv") != 0) return;
+    if (wcsncmp(p->body, L"admin", 5) == 0 && wcschr(p->body, L'\n') != NULL) return;
     
     context *ctx = malloc(sizeof(context));
     ctx->damn = d;
     ctx->pkt = p;
     
     packet *sp = pkt_subpacket(p);
+    
     if(wcscmp(sp->command, L"join") == 0) {
         ctx->msg = NULL;
         ctx->sender = sp->subcommand;
