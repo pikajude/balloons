@@ -17,7 +17,7 @@ static lump complex_lumps[] = {
     { L"&dev\t",    L":dev%:",                                  2, {2}       },
     { L"&link\t",   L"% (%)",                                   3, {1, 2}    },
     { L"&avatar\t", L":icon%:",                                 2, {1}       },
-    { L"&thumb\t",  L":thumb%:",                                7, {1}       },
+    { L"&thumb\t",  L":thumb%:",                                6, {1}       },
     { L"&img\t",    L"<img src='%' alt='%' title='%' />",       3, {1, 2, 3} },
     { L"&iframe\t", L"<iframe src='%' width='%' height='%' />", 4, {1, 2, 3} },
 };
