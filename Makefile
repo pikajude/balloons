@@ -20,23 +20,21 @@ DIR=$(mkdir -p build/damn build/packet)
 
 .PHONY: directories
 
-all: directories $(TARGET)
-
-$(TARGET): $(OBJECTS)
-	$(CC) $^ -o $(TARGET) $(INCLUDE) $(CFLAGS) $(LDFLAGS) $(LDLIBS)
+$(TARGET): directories $(OBJECTS)
+	$(CC) $(filter-out $<,$^) -o $(TARGET) $(INCLUDE) $(CFLAGS) $(LDFLAGS) $(LDLIBS)
 
 bench_%: directories $(BENCHDIR)/%.$(SRCEXT) $(NOMAIN)
 	$(CC) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LDLIBS) -I$(SRCDIR) -o $(BENCHBUILDDIR)/$@ $(filter-out $<,$^)
 	@echo Running benchmark for $@
 	./$(BENCHBUILDDIR)/$@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(BUILDDIR)/%.o: directories $(SRCDIR)/%.$(SRCEXT)
+	$(CC) $(CFLAGS) -c -o $@ $(filter-out $<,$^)
 
 clean:
 	rm -rf $(BUILDDIR)
 
-install: directories $(TARGET)
+install: $(TARGET)
 	install -m 0755 $(TARGET) $(PREFIX)/bin
 
 uninstall:

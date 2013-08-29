@@ -259,8 +259,7 @@ static entity named_entities[] = {
 wchar_t *entity_decode(char *s) {
     size_t len = strlen(s), j = 0;
     wchar_t current_entity = 0;
-    size_t convlen;
-    int ss;
+    int convlen, ss;
     bool is_hex, is_numeric;
     wchar_t *wcs = calloc(1, sizeof(wchar_t) * (len + 1));
     for(size_t i = 0; i < len; i++) {
