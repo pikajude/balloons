@@ -4,6 +4,7 @@ BENCHDIR=bench
 BUILDDIR=build
 BENCHBUILDDIR=build/bench
 CFLAGS=-g -Wall
+BENCHFLAGS=-O3
 TARGET=build/balloons
 INCLUDE=-I/usr/local/include
 LDFLAGS=-L/usr/local/lib
@@ -23,8 +24,10 @@ DIR=$(mkdir -p build/damn build/packet)
 $(TARGET): directories $(OBJECTS)
 	$(CC) $(filter-out $<,$^) -o $(TARGET) $(INCLUDE) $(CFLAGS) $(LDFLAGS) $(LDLIBS)
 
+bench: directories bench_packet
+
 bench_%: directories $(BENCHDIR)/%.$(SRCEXT) $(NOMAIN)
-	$(CC) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LDLIBS) -I$(SRCDIR) -o $(BENCHBUILDDIR)/$@ $(filter-out $<,$^)
+	$(CC) $(CFLAGS) $(BENCHFLAGS) $(INCLUDE) $(LDFLAGS) $(LDLIBS) -I$(SRCDIR) -o $(BENCHBUILDDIR)/$@ $(filter-out $<,$^)
 	@echo Running benchmark for $@
 	./$(BENCHBUILDDIR)/$@
 
