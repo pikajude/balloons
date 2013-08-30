@@ -101,12 +101,12 @@ static wchar_t *declump(wchar_t *s, lump l) {
     // length of section that will be "replaced"
     int r_len = (int)wcslen(l.repl) - (int)countchr(l.repl, L'%') + (int)matchlen;
     int diff = r_len - f_len;
-    
+
     size_t *rdexes = indexes(l.repl, '%');
     size_t *sdexes = indexes(l.repl, '%');
     int glen = grouplen(&l.groups[0]);
     size_t curmatchlen;
-    
+
     news = calloc(1, sizeof(wchar_t) * (size_t)((int)wcslen(s) + diff + 1));
     if(diff > 0)
         wcscpy(news + diff, s);

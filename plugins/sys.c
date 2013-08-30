@@ -55,11 +55,11 @@ static int cmp_strint(const void *s1, const void *s2) {
 
 static void about(context *ctx) {
 #ifdef __WIN32__
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by <b>incluye</b>, running C99 on Windows", BVERSION);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by :devaughters:, running C99 on Windows", BVERSION);
 #else
     struct utsname u;
     uname(&u);
-    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by <b>incluye</b>, running C99 on %s %s", BVERSION, u.sysname, u.release);
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"<b>balloons</b> version %ls, written by :devaughters:, running C99 on %s %s", BVERSION, u.sysname, u.release);
 #endif
 }
 
@@ -69,12 +69,14 @@ static void memuse(context *ctx) {
     mach_msg_type_number_t size = sizeof info;
     task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Memory usage in bytes: %lu", info.resident_size);
+#else
+    dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Memory usage unsupported on this platform.");
 #endif
 }
 
 static void trigcheck(context *ctx) {
     wchar_t *uname = api->setting_get(BKEY_USERNAME);
-	size_t len = wcslen(uname) + 12;
+    size_t len = wcslen(uname) + 12;
     wchar_t *tc = calloc(1, sizeof(wchar_t) * len);
     swprintf(tc, len, L"%ls: trigcheck", uname);
     if (wcsstr(ctx->msg, tc) != NULL)
@@ -84,7 +86,7 @@ static void trigcheck(context *ctx) {
 
 static void botcheck(context *ctx) {
     wchar_t *uname = api->setting_get(BKEY_USERNAME);
-	size_t len = wcslen(uname) + 11;
+    size_t len = wcslen(uname) + 11;
     wchar_t *bc = calloc(1, sizeof(wchar_t) * len);
     swprintf(bc, len, L"%ls: botcheck", uname);
     if (wcsstr(ctx->msg, bc) != NULL)
@@ -99,7 +101,7 @@ static void pong(context *ctx) {
     api->unhook(pingsendid);
     pingsendid = microseconds = 0;
     pinghookid = api->hook_msg((command){ .triggered = true, .name = L"ping", .callback = &ping, .async = true });
-} 
+}
 
 static void ping(context *ctx) {
     api->unhook(pinghookid);
@@ -115,7 +117,7 @@ static void echo(context *ctx) {
 static void commands(context *ctx) {
     size_t idx = 0, fullsize = 24, i = (size_t)-1, j;
     unsigned char access = access_get(ctx->sender);
-    
+
     events **commands = calloc(1, fullsize * sizeof(events*));
     events *cur = api->events;
     do {
@@ -130,10 +132,10 @@ static void commands(context *ctx) {
     } while ((cur = cur->next) != NULL);
     while (commands[++i] != NULL);
     quicksort((void **)commands, 0, (int)i, cmp_events);
-    
+
     wchar_t *msgstr = malloc(sizeof(wchar_t) * (10 + i * (BCMDLEN_MAX + 8)));
     wcscpy(msgstr, L"Commands: ");
-    
+
     for(j = 0; j < i; j++) {
         if (access < commands[j]->access)
             wcscat(msgstr, L"<i>");
@@ -142,7 +144,7 @@ static void commands(context *ctx) {
             wcscat(msgstr, L"</i>");
         wcscat(msgstr, L" ");
     }
-    
+
     dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), msgstr);
     free(commands);
 }
@@ -182,7 +184,7 @@ static void laccess(context *ctx) {
         s = s->next;
     }
     quicksort((void **)&pairs, 0, (int)cur, cmp_strint);
-    
+
     wchar_t *msgstr = calloc(1, sizeof(wchar_t) * (cur * 26));
     for (fullsize = 0; fullsize < cur; fullsize++) {
         wcscat(msgstr, pairs[fullsize].user);
@@ -209,9 +211,9 @@ static void autojoin(context *ctx) {
         rooms = realloc(rooms, sizeof(wchar_t *) * (idx + 1));
         rooms[idx++] = room[0] == L'#' ? room + 1 : room;
     } while ((room = wcstok(NULL, L" ", &split)) != NULL);
-    
+
     quicksort((void **)rooms, 0, (int)idx, cmp_str);
-    
+
     if(wcsncmp(msg, L"list", 4) == 0) {
         size_t len = 0;
         int i = 0;
@@ -284,7 +286,7 @@ static void autojoin(context *ctx) {
     } else {
         dsendmsg(ctx->damn, pkt_roomname(ctx->pkt), L"Usage: autojoin (add <i>room</i> | del <i>room</i> | list)");
     }
-    
+
 done:
     free(set);
     free(rooms);

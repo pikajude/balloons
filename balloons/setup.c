@@ -47,10 +47,10 @@ static void setup_get_trigger(void) {
     wprintf(L"Enter a trigger for the bot [%ls]: ", default_trigger);
     getline(&holder, &size, stdin);
     mbstowcs(trigger, holder, strlen(holder));
-    
+
     wchar_t *nl = wcsrchr(trigger, '\n');
     nl[0] = 0;
-    
+
     if (wcslen(trigger) == 0) {
         setting_store(BKEY_TRIGGER, default_trigger);
         return;
@@ -74,7 +74,7 @@ static void setup_get_extpath(void) {
     wcscat(extname, L"/plugins");
     wprintf(L"Enter the (full!) path to the directory where plugins will be stored [%ls]: ", extname);
     getline(&holder, &size, stdin);
-    
+
     if (*holder == '\n') {
         char *aextname = calloc(1, wcslen(extname) * 2);
         wcstombs(aextname, extname, wcslen(extname) * 2);
@@ -88,13 +88,13 @@ static void setup_get_extpath(void) {
         free(aextname);
         return;
     }
-    
+
     char *nl = strrchr(holder, '\n');
     nl[0] = '\0';
-    
+
     wchar_t *path = malloc(sizeof(wchar_t) * (strlen(holder) + 1));
     mbstowcs(path, holder, strlen(holder));
-    
+
     printf("You chose %s as the plugins directory. Is that okay? (y/n) ", holder);
     free(extname);
     if (getfirstchar() != 'y') {
@@ -118,10 +118,10 @@ static void setup_get_autojoin(void) {
     getline(&holder, &size, stdin);
     if(*holder == '\n')
         return setup_get_autojoin();
-    
+
     char *nl = strrchr(holder, '\n');
     nl[0] = '\0';
-    
+
     printf("You chose '%s' for the autojoin list. Is that okay? (y/n) ", holder);
     if(getfirstchar() != 'y') {
         free(holder);
@@ -141,10 +141,10 @@ static void setup_get_owner(void) {
     getline(&owner, &size, stdin);
     if(*owner == '\n')
         return setup_get_owner();
-    
+
     char *nl = strrchr(owner, '\n');
     nl[0] = '\0';
-    
+
     printf("You chose '%s' as the bot's owner. Is that okay? (y/n) ", owner);
     if(getfirstchar() != 'y') {
         free(owner);

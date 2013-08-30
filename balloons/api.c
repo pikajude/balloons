@@ -46,7 +46,7 @@ void load_libs(void) {
     const char *ext;
     wchar_t path[512] = { 0 };
     char *asciipath;
-    
+
     _api *a = malloc(sizeof(_api));
     chatenv *c = malloc(sizeof(chatenv));
     c->get_users = rget_users;
@@ -60,23 +60,23 @@ void load_libs(void) {
     a->setting_store = setting_store;
     a->setting_get = setting_get;
     a->chatenv = c;
-    
+
     wchar_t *exts = setting_get(BKEY_EXTENSIONS_DIR);
     if (exts == NULL) {
         free(a);
         return;
     }
-    
+
     char *asciidir = calloc(1, wcslen(exts) * 4);
     wcstombs(asciidir, exts, wcslen(exts) * 4);
-    
+
     extdir = opendir(asciidir);
     if (extdir == NULL) {
         perror("Couldn't open extension directory");
         exit(EXIT_FAILURE);
         return;
     }
-    
+
     while ((entry = readdir(extdir))) {
         ext = get_extension(entry->d_name);
         if (strcmp(ext, "so") == 0) {
@@ -98,7 +98,7 @@ void load_libs(void) {
             initializer(a);
         }
     }
-    
+
     free(asciidir);
     closedir(extdir);
 }
@@ -106,27 +106,27 @@ void load_libs(void) {
 void exec_commands(damn *d, packet *p) {
     if (wcscmp(p->command, L"recv") != 0) return;
     if (wcsncmp(p->body, L"admin", 5) == 0 && wcschr(p->body, L'\n') != NULL) return;
-    
+
     context *ctx = malloc(sizeof(context));
     ctx->damn = d;
     ctx->pkt = p;
-    
+
     packet *sp = pkt_subpacket(p);
-    
+
     if(wcscmp(sp->command, L"join") == 0) {
         ctx->msg = NULL;
         ctx->sender = sp->subcommand;
         ev_trigger(L"cmd.join", ctx);
         return;
     }
-    
+
     if(wcscmp(sp->command, L"part") == 0) {
         ctx->msg = NULL;
         ctx->sender = sp->subcommand;
         ev_trigger(L"cmd.part", ctx);
         return;
     }
-    
+
     bool triggered = 0;
     wchar_t *bod;
     size_t len = 0;
@@ -134,7 +134,7 @@ void exec_commands(damn *d, packet *p) {
     wchar_t *uname = setting_get(BKEY_USERNAME);
     size_t uname_len = wcslen(uname);
     wchar_t *trigger = setting_get(BKEY_TRIGGER);
-    
+
     if (wmemcmp(trigger, sp->body, wcslen(trigger)) == 0) {
         triggered = true;
         bod = sp->body + wcslen(trigger);
@@ -144,10 +144,10 @@ void exec_commands(damn *d, packet *p) {
         triggered = true;
         bod = sp->body + uname_len + 2;
     }
-    
+
     wchar_t *sender = pkt_getarg(sp, L"from");
     unsigned char senderaccess = sender == NULL ? 0 : access_get(sender);
-    
+
     if (triggered) {
         while (bod[len++] > 32);
         if (len > 1) {
@@ -166,7 +166,7 @@ void exec_commands(damn *d, packet *p) {
 
     ctx->msg = sp->body;
     ctx->sender = sender;
-    
+
     wchar_t *ident = calloc(1, sizeof(wchar_t) * (wcslen(sp->body) + 13));
     if (ident == NULL)
         perror("Unable to allocate memory for command ID");
@@ -174,7 +174,7 @@ void exec_commands(damn *d, packet *p) {
     ev_trigger_priv(ident, ctx, senderaccess);
     ev_trigger_priv(L"cmd.notrig", ctx, senderaccess);
     free(ident);
-    
+
     if(p->ref == 0)
         free(ctx);
 }

@@ -48,7 +48,7 @@ static char *curl_request(char *url, arglist *params) {
     char *buffer = malloc(1);
     if (buffer == NULL)
         HANDLE_ERR("Unable to allocate memory for buffer");
-    
+
     wchar_t *full_url = malloc(sizeof(wchar_t) * (strlen(url) + 2));
     if (full_url == NULL)
         HANDLE_ERR("Unable to allocate memory for full URL");
@@ -63,30 +63,30 @@ static char *curl_request(char *url, arglist *params) {
         if (params->next != NULL) wcscat(full_url, L"&");
         params = params->next;
     }
-    
+
     curl_global_init(CURL_GLOBAL_ALL);
-    
+
     char *ascii_url = calloc(1, wcslen(full_url) * 4);
     wcstombs(ascii_url, full_url, wcslen(full_url) * 4);
-    
+
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, ascii_url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-    
+
     response_code = curl_easy_perform(curl);
     if (response_code != CURLE_OK) {
         printf("Wowzer! curl failed: %s\n", curl_easy_strerror(response_code));
         exit(EXIT_FAILURE);
     }
-    
+
     free(full_url);
     free(ascii_url);
-    
+
     curl_free(curl);
-    
+
     curl_global_cleanup();
-    
+
     return buffer;
 }
 
@@ -117,34 +117,34 @@ wchar_t *token_get_code(void) {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(12345);
     addr.sin_addr.s_addr = INADDR_ANY;
-    
+
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     int opt = 1;
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof opt);
-    
+
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof addr) != 0) {
         perror("Failed to bind socket");
         exit(EXIT_FAILURE);
     }
     listen(sockfd, 5);
-    
+
     printf("In whatever browser you use, log into the account for the bot you'll be using.\nThen authorize balloons at http://goo.gl/S3cRb\n");
-    
+
     socklen_t client_len = sizeof client_addr;
     int clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
     recv(clientfd, &buffer, sizeof(buffer) - 1, 0);
     sscanf(buffer, "GET /?code=%s", code);
-    
+
     char *resp = response();
     send(clientfd, resp, strlen(resp), 0);
     free(resp);
     close(clientfd);
     close(sockfd);
-    
+
     wchar_t *wcode = calloc(1, sizeof(wchar_t) * strlen(code));
     mbstowcs(wcode, code, strlen(code));
     free(code);
-    
+
     setting_store(BKEY_OAUTHCODE, wcode);
     return wcode;
 }
@@ -175,10 +175,10 @@ wchar_t *token_get_access(wchar_t *code, int refresh) {
         wchar_t *tok = extractJSON(r, "access_token");
         free(r);
         free(rtok);
-        
+
         if (!refresh)
             token_whoami(tok);
-        
+
         return tok;
     }
 }

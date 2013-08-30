@@ -28,12 +28,12 @@ wchar_t *settings_filename(void) {
 
 void settings_load(bool reload) {
     if (current_settings != NULL && !reload) return;
-    
+
     if (reload) {
         if (current_settings) al_free(current_settings);
         current_settings = NULL;
     }
-    
+
     wchar_t *key = calloc(1, sizeof(wchar_t) * KEYLEN), *value = calloc(1, sizeof(wchar_t) * VALLEN);
     wchar_t *fname = settings_filename();
     char *asciifname = calloc(1, wcslen(fname) * 4);
@@ -61,7 +61,7 @@ void settings_load(bool reload) {
         }
     }
     fseek(set, 0, SEEK_SET);
-    
+
     while (fwscanf(set, ARGFMT, key, value) == 2) {
         if (current_settings == NULL)
             current_settings = al_make_pair(key, value);
@@ -70,10 +70,10 @@ void settings_load(bool reload) {
         wmemset(key, 0, KEYLEN);
         wmemset(value, 0, VALLEN);
     }
-    
+
     free(key);
     free(value);
-    
+
     fclose(set);
 }
 

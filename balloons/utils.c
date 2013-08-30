@@ -26,7 +26,7 @@ unsigned char access_get(wchar_t *uname) {
     unsigned int _access;
     wchar_t *setting_name = calloc(1, (wcslen(uname) + 8) * sizeof(wchar_t));
     swprintf(setting_name, wcslen(uname) + 8, L"access.%ls", uname);
-    
+
     wchar_t *setting = setting_get(setting_name);
     if (setting == NULL)
         _access = 0;

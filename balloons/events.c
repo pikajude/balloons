@@ -34,10 +34,10 @@ unsigned long ev_hook(wchar_t *evname, damn_callback d, unsigned char _access, b
         e->timeout = timeout;
         return e->id;
     }
-    
+
     while (e->next != NULL)
         e = e->next;
-    
+
     e->next = ev_make();
     ev_keyset(e->next, evname);
     e->next->d = d;

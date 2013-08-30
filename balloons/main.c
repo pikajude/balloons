@@ -28,16 +28,16 @@ static void getevtname(wchar_t *name, packet *p) {
 int main (int argc, const char *argv[])
 {
     setlocale(LC_ALL, "");
-    
+
     signal(SIGCHLD, SIG_IGN); // prevent exiting children from killing process
     runsetup();
-    
+
     char *pkt;
     packet *p;
     wchar_t *evtid = calloc(1, sizeof(wchar_t) * 25);
     if (evtid == NULL)
         HANDLE_ERR("Unable to allocate for event ID");
-    
+
     ev_hookany(L"pkt.dAmnServer", &handler_dAmnServer);
     load_libs();
     ev_hookany(L"pkt.login", &handler_login);
@@ -54,12 +54,12 @@ int main (int argc, const char *argv[])
 
     wchar_t *tok = token_get_access_all();
     set_damntoken(token_get_damn(tok));
-    
+
     damn *d = damn_make();
     dhandshake(d);
-    
+
     context *c;
-    
+
     for (;;) {
         pkt = damn_read(d);
         if (pkt == NULL) {
@@ -74,9 +74,9 @@ int main (int argc, const char *argv[])
         p = pkt_parse(pktd);
         if(p->body != NULL)
             p->body = delump(p->body);
-        
+
         p->ref = 0;
-        
+
         getevtname(evtid, p);
         c = malloc(sizeof(context));
         c->damn = d;
@@ -85,7 +85,7 @@ int main (int argc, const char *argv[])
         c->sender = NULL;
         ev_trigger(evtid, c);
         exec_commands(d, p);
-        
+
         if(p->ref == 0)
             pkt_free(p);
         wmemset(evtid, 0, 25);
